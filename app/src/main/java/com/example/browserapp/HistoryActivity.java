@@ -55,9 +55,11 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
 
         viewModel.getHistoryList().observe(this, histories -> {
             historyList = histories;
-            adapter = new HistoryAdapter(this, R.layout.history_item, histories);
-            binding.historyListView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+            if(adapter == null) {
+                adapter = new HistoryAdapter(this, R.layout.history_item, histories);
+                binding.historyListView.setAdapter(adapter);
+            }
+            adapter.setHistoryList(histories);
         });
 
         binding.historyListView.setOnItemClickListener(this);
@@ -93,7 +95,6 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
 
                 setCheck(info.position);
 
-                adapter.notifyDataSetChanged();
                 binding.multiHistoryDelete.setVisibility(View.VISIBLE);
 
                 binding.multiHistoryDelete.setOnClickListener(new OnClickListener() {
@@ -140,9 +141,8 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
             @Override
             public boolean onQueryTextChange(String newText) {
                 viewModel.searchHistory(newText).observe(HistoryActivity.this, histories -> {
-                    HistoryAdapter adapter = new HistoryAdapter(getApplicationContext(), R.layout.history_item, histories);
-                    binding.historyListView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
+                    adapter.setHistoryList(histories);
+                    historyList = histories;
                 });
                 return false;
             }
@@ -177,13 +177,10 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
             checkedStateMap.put(position, true);
             checkedHistory.add(historyList.get(position));
             adapter.setChecked(true, position);
-            adapter.notifyDataSetChanged();
-
         } else {
             checkedStateMap.put(position, false);
             checkedHistory.remove(historyList.get(position));
             adapter.setChecked(false, position);
-            adapter.notifyDataSetChanged();
         }
     }
 
@@ -200,7 +197,6 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
         multiChoice = false;
         adapter.setShowCheckbox(false);
         adapter.clearCheckedState();
-        adapter.notifyDataSetChanged();
         binding.multiHistoryDelete.setVisibility(View.GONE);
         checkedHistory.clear();
         checkedStateMap.clear();

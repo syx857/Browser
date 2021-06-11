@@ -14,18 +14,20 @@ import java.util.List;
 
 public class HistoryAdapter extends ArrayAdapter<History> {
 
+    List<History> historyList;
     HistoryItemBinding binding;
     boolean showCheckbox = false;
     SparseBooleanArray checkState = new SparseBooleanArray();
 
     public HistoryAdapter(Context context, int resource, List<History> objects) {
         super(context, resource, objects);
+        this.historyList = objects;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        History history = getItem(position);
+        History history = historyList.get(position);
         if (convertView == null) {
             binding = HistoryItemBinding.inflate(LayoutInflater.from(getContext()), parent, false);
             convertView = binding.getRoot();
@@ -53,13 +55,26 @@ public class HistoryAdapter extends ArrayAdapter<History> {
 
     public void setShowCheckbox(boolean show) {
         showCheckbox = show;
+        notifyDataSetChanged();
     }
 
     public void setChecked(boolean checked, int position) {
         checkState.put(position, checked);
+        notifyDataSetChanged();
     }
 
     public void clearCheckedState() {
         checkState.clear();
+        notifyDataSetChanged();
+    }
+
+    public void setHistoryList(List<History> historyList) {
+        this.historyList = historyList;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        return historyList.size();
     }
 }
