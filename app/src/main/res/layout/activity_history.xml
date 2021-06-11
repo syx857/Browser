@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  tools:context=".HistoryActivity"
+  android:orientation="vertical"
+  android:paddingLeft="10dp"
+  android:paddingRight="10dp">
+
+  <androidx.appcompat.widget.Toolbar
+    android:id="@+id/history_toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    app:popupTheme="@style/Widget.AppCompat.PopupMenu.Overflow"
+
+    />
+
+  <ListView
+    android:id="@+id/history_list_view"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:scrollbars="none"
+    android:choiceMode="multipleChoice"
+    />
+
+  <ImageButton
+    android:src="@mipmap/delete"
+    android:background="@color/white"
+    android:id="@+id/multi_history_delete"
+    android:scaleType="fitCenter"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:padding="12dp"
+    android:visibility="gone"
+    />
+
+</LinearLayout>

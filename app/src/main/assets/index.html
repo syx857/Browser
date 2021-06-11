@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>搜索</title>
+	</head>
+	<style type="text/css">
+		.container{
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+		.search-box{
+			position: relative;
+		}
+		.search-input-text{
+			width: 65vw;
+			height: 5vh;
+			border: 0.1vw solid #b6b6b6;
+			font-size: 3vh;
+			padding-left:3vw ;
+		}
+		.search-input-button{
+			font-size: 3vh;
+			width: 20vw;
+			 background: #3385ff;
+			 border: 0.1vw solid #2d78f4;
+			 color: white;
+			 opacity: .9;
+		}
+		.suggest{
+			width: 60vw;
+			position: absolute;
+			border:0.1vw solid #999999;
+			background: white;
+			display: none;
+		}
+		.suggest ul{
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+		.suggest ul li{
+			padding: 3px;
+			font-size: 3vh;
+			line-height: 25px;
+			cursor: pointer;
+		}
+		.suggest ul li:hover{
+			background-color: #E5E5E5;
+		}
+	</style>
+	<body>
+		<div class="container">
+			<div class="search-box">
+				<input type="text" class="search-input-text" value="" autofocus="autofocus" placeholder="关键词" />
+				<input type="button" value="搜索" class="search-input-button" id="btn"/>
+				<div class="suggest">
+					<ul id="search-result">	
+					</ul>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		/*function getHtmlFontSize(){
+			let htmlWidth = document.documentElement.clientWidth || document.body.clientWidth;
+			console.log(htmlWidth);
+			
+			let htmlDom = document.getElementsByTagName("html")[0];
+			console.log(htmlDom);
+			
+			htmlDom.style.fontSize = htmlWidth/20 + 'px';
+		}
+		getHtmlFontSize();*/
+		//window.addEventListener('resize',getHtmlFontSize);
+		var suggestContainer = document.getElementsByClassName("suggest")[0];
+		var searchInput = document.getElementsByClassName("search-input-text")[0];
+		var searchBox = document.getElementsByClassName("search-box")[0];
+		var searchResult = document.getElementById("search-result");
+		
+		function clearContent(){
+			var size = searchResult.childNodes.length;
+			for(var i = size - 1;i >= 0;i--){
+				searchResult.removeChild(searchResult.childNodes[i]);
+			}
+			//suggestContainer.style.display = 'none';
+		};
+		var timer = null;
+		searchInput.onkeyup = function(e){
+			suggestContainer.style.display = "block";
+			
+			if(this.value.length === 0){
+				clearContent();
+				return;
+			}
+			if(this.timer){
+				clearTimeout(this.timer);
+			}
+			if(e.keyCode !== 40 && e.keyCode !== 38){
+				this.timer = setTimeout(() => {
+					var script = document.createElement("script");
+					script.src = "https://www.baidu.com/su?&wd=" + encodeURI(this.value.trim()) + 
+					"&p=3&cb=handleSuggestion";
+					document.body.appendChild(script);
+				},130)
+			}
+		};
+		function handleSuggestion(res){
+			//返回的结果是以一个对象的形式返回的,q 对应检索关键词，s对应返回的结果(数组形式)
+			clearContent();
+			var result = res.s;
+			if(result.length > 4){
+				result = result.slice(0,5)
+			}
+			for(let i = 0; i < result.length;i++){
+				var liObj = document.createElement("li");
+				liObj.innerHTML = result[i];
+				searchResult.appendChild(liObj);
+			}
+			(function(){
+				var s = document.querySelectorAll('script');
+				for(var i = 1,len = s.length;i < len;i++){
+					document.body.removeChild(s[i]);
+				}
+			})()
+		}
+		
+		function jumpPage(){
+			window.open(`https://www.baidu.com/s?word=${encodeURI(searchInput.value)}`);
+		}
+		
+		searchBox.addEventListener("click",function(e){
+			if(e.target.nodeName.toLowerCase()==='li'){
+				var keywords = e.target.innerText;
+				searchInput.value = keywords;
+				jumpPage();
+			}else if(e.target.id === 'btn'){
+				jumpPage();
+			}
+		},false);
+		
+		var i = 0;
+		var flag = 1;
+		
+		searchBox.addEventListener("keydown",function(e){
+			var size = searchResult.childNodes.length;
+			if(e.keyCode === 13){
+				jumpPage();
+			};
+			if(e.keyCode === 40){
+				if(flag === 0){
+					i = i + 2;
+				}
+				flag = 1;
+				e.preventDefault();
+				if(i < 0){
+					i = size - 1;
+				}
+				if(i > -1){
+					searchInput.value = searchResult.childNodes[i--].innerText;
+				}
+			};
+			document.onclick = function(){
+				clearContent();
+				suggestContainer.style.display = 'none';
+			}
+		},false)
+	</script>
+</html>
