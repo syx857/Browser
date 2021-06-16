@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:showIn="@layout/activity_main">
+
+    <ImageView
+        android:id="@+id/backward"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="@drawable/background_ripple"
+        android:onClick="onClick"
+        android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/forward"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="@drawable/background_ripple"
+        android:onClick="onClick"
+        android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/home"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="@drawable/background_ripple"
+        android:onClick="onClick"
+        android:src="@drawable/ic_outline_home_24"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/page"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="@drawable/background_ripple"
+        android:onClick="onClick"
+        android:src="@drawable/ic_baseline_crop_square_24"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/menu"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="@drawable/background_ripple"
+        android:onClick="onClick"
+        android:src="@drawable/ic_baseline_menu_24"
+        tools:ignore="ContentDescription" />
+
+</LinearLayout>

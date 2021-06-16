@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="5dp"
+    android:padding="5dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    tools:showIn="@layout/activity_main">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_collapseMode="pin">
+
+        <ImageView
+            android:id="@+id/add"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/background_ripple"
+            android:onClick="onClick"
+            android:src="@drawable/ic_outline_add_24"
+            android:visibility="gone"
+            app:tint="@color/black"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginHorizontal="5dp"
+            android:layout_toStartOf="@id/refresh"
+            android:layout_alignParentStart="true"
+            android:autofillHints="搜索"
+            android:background="@drawable/background_search"
+            android:inputType="textUri"
+            android:maxLines="1"
+            android:minLines="1"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="5dp"
+            android:textAlignment="textStart"
+            android:textColor="@color/textColor"
+            android:textColorHint="#5F6267"
+            android:textSize="18sp"
+            tools:ignore="LabelFor"
+            tools:text="https://baidu.com" />
+
+        <ImageView
+            android:id="@+id/refresh"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/background_ripple"
+            android:onClick="onClick"
+            android:src="@drawable/ic_baseline_refresh_24"
+            app:tint="@color/black"
+            tools:ignore="ContentDescription" />
+
+    </RelativeLayout>
+
+</com.google.android.material.appbar.AppBarLayout>

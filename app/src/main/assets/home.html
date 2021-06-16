@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<title>主页</title>
+	</head>
+	<style type="text/css">
+		.container{
+			height: 100vh;
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			flex-direction: column;
+		}
+		.search-box{
+			position: relative;
+		}
+		.search-input-text{
+			width: 65vw;
+			height: 5vh;
+			border: 0.1vw solid #b6b6b6;
+			font-size: 3vh;
+			padding-left:3vw ;
+		}
+		.search-input-button{
+			font-size: 3vh;
+			width: 20vw;
+			 background: #3385ff;
+			 border: 0.1vw solid #2d78f4;
+			 color: white;
+			 opacity: .9;
+		}
+		.suggest{
+			width: 68vw;
+			position: absolute;
+			border:0.1vw solid #999999;
+			background: white;
+			display: none;
+		}
+		.suggest ul{
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+		.suggest ul li{
+			padding: 3px;
+			font-size: 3vh;
+			line-height: 25px;
+			cursor: pointer;
+		}
+		.suggest ul li:hover{
+			background-color: #E5E5E5;
+		}
+		img{
+			width: 90vw;
+			height: 50vh;
+		}
+	</style>
+	<body>
+		<div class="container">
+			<img src="photo.png" >
+			<div class="search-box">
+				<input type="text" class="search-input-text" value="" autofocus="autofocus" placeholder="关键词" />
+				<input type="button" value="搜索" class="search-input-button" id="btn"/>
+				<div class="suggest">
+					<ul id="search-result">	
+					</ul>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
