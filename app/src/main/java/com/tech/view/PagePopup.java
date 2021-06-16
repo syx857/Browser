@@ -30,7 +30,7 @@ public class PagePopup extends PopupWindow implements TokenAdapter.Callback {
         setOnDismissListener(this::onDismiss);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         binding.recycler.setAdapter(adapter);
-        //binding.recycler.setHasFixedSize(true);
+        binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(layoutManager);
     }
 

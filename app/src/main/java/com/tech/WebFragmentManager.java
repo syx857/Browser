@@ -147,7 +147,12 @@ public class WebFragmentManager {
      */
     public void removeFragment(@NonNull WebFragmentToken token) {
         if (fm != null) {
-            WebFragment webFragment = (WebFragment) fm.getFragment(bundle, token.tag);
+            WebFragment webFragment;
+            try {
+                webFragment = (WebFragment) fm.getFragment(bundle, token.tag);
+            } catch (Exception e) {
+                return;
+            }
             if (webFragment != null) {
                 fm.beginTransaction().remove(webFragment).commit();
             }
