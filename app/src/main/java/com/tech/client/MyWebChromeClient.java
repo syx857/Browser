@@ -1,5 +1,6 @@
 package com.tech.client;
 
+import android.graphics.Bitmap;
 import android.os.Message;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -33,11 +34,20 @@ public class MyWebChromeClient extends WebChromeClient {
         }
     }
 
+    @Override
+    public void onReceivedIcon(WebView view, Bitmap icon) {
+        if (callback != null) {
+            callback.onReceivedIcon(icon);
+        }
+    }
+
     public interface Callback {
         void onProgressChanged(int progress);
 
         void onCreateWindow(boolean isDialog, boolean isUserGesture, Message resultMsg);
 
         void onReceivedTitle(String title);
+
+        void onReceivedIcon(Bitmap icon);
     }
 }

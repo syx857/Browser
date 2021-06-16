@@ -14,31 +14,57 @@ import com.tech.model.WebFragmentToken;
 
 import java.util.List;
 
+/**
+ * 可重用的适配器
+ */
 public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.TokenViewHolder> {
-    static final int SELECTED_TEXT = Color.rgb(35,114,219);
-    static final int UNSELECTED_TEXT = Color.rgb(32,33,37);
-    static final int SELECTED_IMG = Color.rgb(35,114,219);
-    static final int UNSELECTED_IMG = Color.rgb(117,117,117);
+    static final int SELECTED_TEXT = Color.rgb(35, 114, 219);
+    static final int UNSELECTED_TEXT = Color.rgb(32, 33, 37);
+    static final int SELECTED_IMG = Color.rgb(35, 114, 219);
+    static final int UNSELECTED_IMG = Color.rgb(117, 117, 117);
 
     List<WebFragmentToken> list;
     WebFragmentToken current;
     Callback callback;
 
-    public interface Callback {
-        void removeWebFragment(WebFragmentToken token);
-
-        void showWebFragment(WebFragmentToken token);
+    public TokenAdapter(@NonNull List<WebFragmentToken> list) {
+        this.list = list;
     }
 
-    public TokenAdapter(List<WebFragmentToken> list, Callback callback) {
-        this.list = list;
+    public void setCallback(Callback callback) {
         this.callback = callback;
     }
 
-    public void setCurrent(WebFragmentToken current) {
-        this.current = current;
+    public void clearCallback() {
+        callback = null;
     }
 
+    /**
+     * @param token 刷新选中的item
+     */
+    public void setCurrent(WebFragmentToken token) {
+        if (current == token) {
+            return;
+        }
+        WebFragmentToken prev = current;
+        current = token;
+        if (prev != null) {
+            int index = list.indexOf(prev);
+            if (index >= 0) {
+                notifyItemChanged(index);
+            }
+        }
+        if (token != null) {
+            int index = list.indexOf(token);
+            if (index >= 0) {
+                notifyItemChanged(index);
+            }
+        }
+    }
+
+    /**
+     * 常规Adapter重载方法
+     */
     @NonNull
     @Override
     public TokenViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -56,6 +82,21 @@ public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.TokenViewHol
         return list.size();
     }
 
+    public interface Callback {
+        /**
+         * @param token 移除WebFragment，传入对应的Token
+         */
+        void removeWebFragment(WebFragmentToken token);
+
+        /**
+         * @param token 显示对应的WebFragment，传入对应的Token
+         */
+        void showWebFragment(WebFragmentToken token);
+    }
+
+    /**
+     * 常规ViewHolder重载
+     */
     class TokenViewHolder extends RecyclerView.ViewHolder {
 
         PageItemBinding binding;
@@ -66,22 +107,25 @@ public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.TokenViewHol
             binding = b;
         }
 
+        /**
+         * 视图绑定
+         *
+         * @param token token，附带标题，图标信息
+         */
         public void bind(WebFragmentToken token) {
-            if(token == current || (current != null && token.tag.equals(current.tag))) {
+            this.token = token;
+            if (token == current || (current != null && token.tag.equals(current.tag))) {
                 binding.title.setTextColor(SELECTED_TEXT);
-                binding.favicon.setColorFilter(SELECTED_IMG);
+                //binding.favicon.setColorFilter(SELECTED_IMG);
                 binding.close.setColorFilter(SELECTED_IMG);
-            }
-            else {
+            } else {
                 binding.title.setTextColor(UNSELECTED_TEXT);
-                binding.favicon.setColorFilter(UNSELECTED_IMG);
+                //binding.favicon.setColorFilter(UNSELECTED_IMG);
                 binding.close.setColorFilter(UNSELECTED_IMG);
             }
-            this.token = token;
-            if(token.favicon != null) {
+            if (token.favicon != null) {
                 binding.favicon.setImageBitmap(token.favicon);
-            }
-            else {
+            } else {
                 binding.favicon.setImageResource(R.drawable.ic_outline_globe_24);
             }
             binding.title.setText(token.title);
@@ -89,14 +133,19 @@ public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.TokenViewHol
             binding.close.setOnClickListener(this::onClick);
         }
 
+        /**
+         * 点击事件回调
+         *
+         * @param v 视图
+         */
         public void onClick(View v) {
-            if(callback == null || token == null) {
+            if (callback == null || token == null) {
                 return;
             }
-            if(v == binding.getRoot()) {
+            if (v == binding.getRoot()) {
                 callback.showWebFragment(token);
             }
-            if(v == binding.close) {
+            if (v == binding.close) {
                 callback.removeWebFragment(token);
             }
         }

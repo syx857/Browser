@@ -2,18 +2,17 @@ package com.tech;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,15 +24,15 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.tech.databinding.ActivityMainBinding;
 import com.tech.model.WebFragmentToken;
+import com.tech.view.PagePopup;
 
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity implements TextWatcher {
+public class MainActivity extends AppCompatActivity implements TextWatcher, PagePopup.PagePopupCallback {
     public static final String TAG = "MainActivity";
 
     MainViewModel viewModel;
     ActivityMainBinding binding;
     InputMethodManager inputMethodManager;
+    PagePopup pagePopup;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
         viewModel.getProgress().observe(this, this::setProgressBar);
         viewModel.getCurrentToken().observe(this, this::setToken);
         viewModel.getTypeIn().observe(this, this::typeIn);
-        viewModel.getList().observe(this, this::setTotalPage);
+        viewModel.getCount().observe(this, this::setTotalPage);
 
         if (viewModel.isEmpty()) {
             viewModel.addFragment();
@@ -58,20 +57,24 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
         binding.getRoot().setOnTouchListener(this::onTouch);
     }
 
-    public void setTotalPage(List<WebFragmentToken> list) {
+    /**
+     * 绘制页数
+     *
+     * @param num 页数
+     */
+    public void setTotalPage(int num) {
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_crop_square_24, null);
         assert drawable != null;
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
                 drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.setTint(Color.rgb(117,117,117));
+        drawable.setTint(Color.rgb(117, 117, 117));
         drawable.draw(canvas);
         String str;
-        if(list.size() < 100) {
-            str = "" + list.size() ;
-        }
-        else {
+        if (num < 100) {
+            str = "" + num;
+        } else {
             str = "99+";
         }
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -81,12 +84,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
         paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
         Rect bounds = new Rect();
         paint.getTextBounds(str, 0, str.length(), bounds);
-        int x = (bitmap.getWidth() - bounds.width())/2;
-        int y = (bitmap.getHeight() + bounds.height())/2;
+        int x = (bitmap.getWidth() - bounds.width()) / 2;
+        int y = (bitmap.getHeight() + bounds.height()) / 2;
         canvas.drawText(str, x, y, paint);
         binding.navigationBar.page.setImageBitmap(bitmap);
     }
 
+    /**
+     * 设置网页加载进度
+     *
+     * @param progress 进度
+     */
     public void setProgressBar(int progress) {
         if (progress < 0 || progress >= 100) {
             binding.progressBar.setVisibility(View.INVISIBLE);
@@ -96,6 +104,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
         }
     }
 
+    /**
+     * 设置建议行动
+     *
+     * @param s 输入的文字
+     */
     public void typeIn(String s) {
         if (s.length() == 0) {
             binding.suggestView.suggestUrl.getRoot().setVisibility(View.GONE);
@@ -109,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
         binding.suggestView.suggestSearch.search.setText(s);
     }
 
+    /**
+     * 获取Token更新视图
+     *
+     * @param token 当前页面的Token
+     */
     public void setToken(WebFragmentToken token) {
         if (token != null) {
             binding.appBar.editText.setText(token.url);
@@ -117,13 +135,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
         }
     }
 
-    public void goBackward() {
-        if (!viewModel.goBackward()) {
-            viewModel.removeFragment(viewModel.getCurrentTokenValue());
-            if(viewModel.getSize() == 1) {
-                finish();
-            }
-        }
+    public boolean goBackward() {
+        return viewModel.goBackward();
     }
 
     public void goForward() {
@@ -162,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
             goBackward();
         }
         if (v == binding.navigationBar.page) {
-            //TODO popupWindow
+            doPagePopup();
         }
         if (v == binding.navigationBar.menu) {
             //TODO popupWindow
@@ -175,13 +188,30 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
         }
     }
 
+    public void doPagePopup() {
+        if (pagePopup == null) {
+            pagePopup = new PagePopup(this, this, viewModel.getAdapter());
+            pagePopup.showAsDropDown(binding.appBar.getRoot(), 0, 0, Gravity.TOP);
+            Log.d(TAG, "doPagePopup: show page popup");
+        } else {
+            pagePopup.dismiss();
+            pagePopup = null;
+        }
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (binding.appBar.editText.isFocused()) {
                 clearEditTextFocus();
             } else {
-                goBackward();
+                if (!goBackward()) {
+                    viewModel.removeFragment(viewModel.getCurrentTokenValue());
+                    if (viewModel.getSize() == 1) {
+                        finish();
+                    }
+                }
+                ;
             }
             return true;
         }
@@ -189,18 +219,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
     }
 
     @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    @Override
     public void afterTextChanged(Editable s) {
         viewModel.setTypeIn(s.toString());
     }
 
+    /**
+     * 根据地址栏Focus事件决定建议视图显示和消失
+     *
+     * @param view     地址栏
+     * @param hasFocus 是否锁定
+     */
     public void onFocusChange(View view, boolean hasFocus) {
         if (hasFocus) {
             binding.suggestView.getRoot().setVisibility(View.VISIBLE);
@@ -216,5 +244,38 @@ public class MainActivity extends AppCompatActivity implements TextWatcher {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void addWebFragment() {
+        viewModel.addFragment();
+        pagePopup.dismiss();
+        pagePopup = null;
+    }
+
+    @Override
+    public void removeWebFragment(WebFragmentToken token) {
+        if (viewModel.getSize() == 1) {
+            viewModel.removeFragment(token);
+            pagePopup.dismiss();
+            pagePopup = null;
+        } else {
+            viewModel.removeFragment(token);
+        }
+    }
+
+    @Override
+    public void showWebFragment(WebFragmentToken token) {
+        viewModel.showFragment(token);
+        pagePopup.dismiss();
+        pagePopup = null;
     }
 }

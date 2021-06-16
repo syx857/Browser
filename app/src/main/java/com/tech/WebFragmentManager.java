@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.tech.adapter.TokenAdapter;
 import com.tech.model.WebFragmentToken;
 import com.tech.ui.WebFragment;
 import com.tech.ui.WebViewModel;
@@ -25,39 +26,67 @@ import java.util.Vector;
  * MainActivity创建，由MainActivity维护，是视图管理类
  */
 public class WebFragmentManager {
+    public static final String TAG = "WebFragmentManager";
     Bundle bundle = new Bundle();
-    List<WebFragmentToken> listValue = new Vector<>();
-    MutableLiveData<List<WebFragmentToken>> list = new MutableLiveData<>();
     WebFragmentToken currentTokenValue;
+    List<WebFragmentToken> list = new Vector<>();
+
+    MutableLiveData<Integer> count = new MutableLiveData<>(0);
     MutableLiveData<WebFragmentToken> currentToken = new MutableLiveData<>(currentTokenValue);
+
+    TokenAdapter adapter;
 
     FragmentManager fm;
     int containerID;
 
+    /**
+     * @param containerID Fragment容器ID
+     */
     public WebFragmentManager(int containerID) {
         this.containerID = containerID;
+        adapter = new TokenAdapter(list);
     }
 
+    /**
+     * @param fm 设置FragmentManager，在Activity创建时调用
+     */
     public void setFragmentManager(FragmentManager fm) {
         this.fm = fm;
     }
 
+    /**
+     * 清除FragmentManager，在Activity销毁时调用
+     */
     public void clearFragmentManager() {
         fm = null;
     }
 
+    /**
+     * @return 容器内是否还有Fragment
+     */
     public boolean isEmpty() {
-        return listValue.isEmpty();
+        return list.isEmpty();
     }
 
+    /**
+     * @return 容器内是否有内容展示
+     */
     public boolean isShown() {
         return currentTokenValue != null;
     }
 
+    /**
+     * 添加Fragment
+     */
     public void addFragment() {
         addFragment(null);
     }
 
+    /**
+     * 添加Fragment，附带Message跳转信息
+     *
+     * @param message 跳转信息
+     */
     public void addFragment(Message message) {
         if (fm != null) {
             WebFragment webFragment = new WebFragment();
@@ -69,6 +98,9 @@ public class WebFragmentManager {
                 fm.beginTransaction().add(containerID, webFragment).commit();
             }
             fm.putFragment(bundle, token.tag, webFragment);
+            /*
+            在onCreate阶段向ViewModel注入依赖
+             */
             webFragment.getLifecycle().addObserver(new DefaultLifecycleObserver() {
                 @Override
                 public void onCreate(@NonNull @NotNull LifecycleOwner owner) {
@@ -84,24 +116,20 @@ public class WebFragmentManager {
         }
     }
 
-    public void addFragmentBackground() {
-        if (fm != null) {
-            WebFragment webFragment = new WebFragment();
-            WebFragmentToken token = new WebFragmentToken();
-            WebViewModel viewModel = new ViewModelProvider(webFragment).get(WebViewModel.class);
-            viewModel.setToken(token);
-            fm.beginTransaction().add(containerID, webFragment).hide(webFragment).commit();
-            fm.putFragment(bundle, token.tag, webFragment);
-            addToken(token);
-        }
-    }
-
-    public void showFragment(WebFragmentToken token) {
+    /**
+     * 展示Fragment
+     *
+     * @param token fragment的token
+     */
+    public void showFragment(@NonNull WebFragmentToken token) {
         if (fm != null) {
             if (currentTokenValue != token) {
                 WebFragment webFragment = (WebFragment) fm.getFragment(bundle, token.tag);
                 WebFragment currentFragment = getCurrentFragment();
-                assert webFragment != null;
+                if (webFragment == null) {
+                    Log.d(TAG, "showFragment: get null fragment");
+                    return;
+                }
                 if (currentFragment == null) {
                     fm.beginTransaction().show(webFragment).commit();
                 } else {
@@ -112,7 +140,12 @@ public class WebFragmentManager {
         }
     }
 
-    public void removeFragment(WebFragmentToken token) {
+    /**
+     * 移除Fragment
+     *
+     * @param token fragment的token
+     */
+    public void removeFragment(@NonNull WebFragmentToken token) {
         if (fm != null) {
             WebFragment webFragment = (WebFragment) fm.getFragment(bundle, token.tag);
             if (webFragment != null) {
@@ -125,33 +158,53 @@ public class WebFragmentManager {
         }
     }
 
+    /**
+     * 向列表添加Token，通知adapter，更新Token数
+     *
+     * @param token fragment的token
+     */
     void addToken(WebFragmentToken token) {
-        listValue.add(token);
-        notifyTokenListChanged();
+        list.add(token);
+        adapter.notifyItemInserted(list.size() - 1);
+        updateTokenCount();
     }
 
+    /**
+     * 向列表移除Token，通知adapter，更新Token数
+     *
+     * @param token fragment的token
+     */
     void removeToken(WebFragmentToken token) {
-        listValue.remove(token);
-        notifyTokenListChanged();
+        int index = list.indexOf(token);
+        list.remove(token);
+        adapter.notifyItemRemoved(index);
+        updateTokenCount();
     }
 
-    public WebFragmentToken findNextToken(WebFragmentToken token) {
-        if (listValue.size() <= 0) {
+    /**
+     * 寻找下一个Token
+     *
+     * @param token fragment的token
+     * @return 下一个Fragment的Token，列表为空则返回null
+     */
+    public WebFragmentToken findNextToken(@NonNull WebFragmentToken token) {
+        if (list.size() <= 0) {
             return null;
         }
-        int index = listValue.indexOf(token);
+        int index = list.indexOf(token);
         if (index < 0) {
-            return listValue.get(0);
+            return list.get(0);
         }
         if (index - 1 >= 0) {
-            return listValue.get(index - 1);
+            return list.get(index - 1);
         }
-        if (index + 1 < listValue.size()) {
-            return listValue.get(index + 1);
+        if (index + 1 < list.size()) {
+            return list.get(index + 1);
         }
         return null;
     }
 
+    @Deprecated
     public WebFragment findNextFragment(WebFragmentToken token) {
         if (fm != null) {
             WebFragmentToken nextToken = findNextToken(token);
@@ -167,16 +220,13 @@ public class WebFragmentManager {
     }
 
     void setCurrentToken(WebFragmentToken token) {
+        adapter.setCurrent(token);
         currentTokenValue = token;
-        notifyCurrentTokenChanged();
+        currentToken.setValue(currentTokenValue);
     }
 
     public WebFragmentToken getCurrentTokenValue() {
         return currentTokenValue;
-    }
-
-    public LiveData<List<WebFragmentToken>> getList() {
-        return list;
     }
 
     public WebFragment getCurrentFragment() {
@@ -186,15 +236,29 @@ public class WebFragmentManager {
         return null;
     }
 
-    public void notifyTokenListChanged() {
-        list.setValue(listValue);
+    public void notifyTokenChanged(WebFragmentToken token) {
+        if (token == currentTokenValue) {
+            currentToken.setValue(token);
+        }
+        int index = list.indexOf(token);
+        if (index >= 0) {
+            adapter.notifyItemChanged(index);
+        }
     }
 
-    public void notifyCurrentTokenChanged() {
-        currentToken.setValue(currentTokenValue);
+    public void updateTokenCount() {
+        count.setValue(list.size());
     }
 
     public int getSize() {
-        return listValue.size();
+        return list.size();
+    }
+
+    public TokenAdapter getAdapter() {
+        return adapter;
+    }
+
+    public LiveData<Integer> getCount() {
+        return count;
     }
 }

@@ -1,6 +1,5 @@
 package com.tech.ui;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Message;
@@ -20,7 +19,6 @@ import com.tech.MainViewModel;
 import com.tech.client.MyWebChromeClient;
 import com.tech.client.MyWebViewClient;
 import com.tech.databinding.FragmentWebBinding;
-import com.tech.domain.History;
 import com.tech.model.WebFragmentToken;
 import com.tech.utils.WebViewUtils;
 
@@ -46,18 +44,16 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         binding.webView.setWebViewClient(new MyWebViewClient(this));
         binding.webView.setWebChromeClient(new MyWebChromeClient(this));
 
-        if(webViewModel.getResultMsg() != null) {
+        if (webViewModel.getResultMsg() != null) {
             Message resultMsg = webViewModel.getResultMsg();
             WebView.WebViewTransport webViewTransport = (WebView.WebViewTransport) resultMsg.obj;
             webViewTransport.setWebView(binding.webView);
             webViewModel.setResultMsg(null);
             resultMsg.sendToTarget();
-        }
-        else if(webViewModel.getBundle() == null && webViewModel.getResultMsg() == null) {
+        } else if (webViewModel.getBundle() == null && webViewModel.getResultMsg() == null) {
             binding.webView.loadUrl(HOME);
             webViewModel.setBundle(new Bundle());
-        }
-        else {
+        } else {
             binding.webView.restoreState(webViewModel.getBundle());
         }
 
@@ -66,26 +62,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
 
         return binding.getRoot();
     }
-
-    /*
-    public void setHomeVisibility(boolean v) {
-        if (v) {
-            binding.home.getRoot().setVisibility(View.VISIBLE);
-        } else {
-            binding.home.getRoot().setVisibility(View.GONE);
-        }
-    }
-     */
-
-    /*
-    public void setWebViewVisibility(boolean v) {
-        if (v) {
-            binding.webView.setVisibility(View.VISIBLE);
-        } else {
-            binding.webView.setVisibility(View.GONE);
-        }
-    }
-     */
 
     @Override
     public void onResume() {
@@ -122,15 +98,24 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     }
 
     @Override
+    public void onReceivedIcon(Bitmap icon) {
+        Log.d(TAG, "onReceivedIcon: ");
+        setFavicon(icon);
+    }
+
+    @Override
     public void onPageStarted(String url, Bitmap favicon) {
+        setTitle(url);
         Log.d(TAG, "onPageStarted: url: " + url);
         if (url.equals("data:text/html; charset=UTF-8,")) {
             setUrl("");
+            setFavicon(null);
         }
-        if(url.equals(HOME)) {
+        if (url.equals(HOME)) {
             setUrl("");
-        }
-        else {
+            setFavicon(null);
+            return;
+        } else {
             setUrl(url);
         }
         setFavicon(favicon);
@@ -151,21 +136,21 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     public void setTitle(String title) {
         if (token != null) {
             token.title = title;
-            mainViewModel.notifyTokenChanged();
+            mainViewModel.notifyTokenChanged(token);
         }
     }
 
     public void setUrl(String url) {
         if (token != null) {
             token.url = url;
-            mainViewModel.notifyTokenChanged();
+            mainViewModel.notifyTokenChanged(token);
         }
     }
 
     public void setFavicon(Bitmap ico) {
         if (token != null) {
             token.favicon = ico;
-            mainViewModel.notifyTokenChanged();
+            mainViewModel.notifyTokenChanged(token);
         }
     }
 
@@ -187,13 +172,11 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         binding.webView.reload();
     }
 
-    public boolean goForward() {
+    public void goForward() {
         if (binding.webView.canGoForward()) {
             binding.webView.goForward();
             Log.d(TAG, "goForward: canGoForward");
-            return true;
         }
-        return false;
     }
 
     public void goHome() {
@@ -204,7 +187,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
             token.title = "首页";
             token.favicon = null;
             token.url = "";
-            mainViewModel.notifyTokenChanged();
+            mainViewModel.notifyTokenChanged(token);
         }
     }
 

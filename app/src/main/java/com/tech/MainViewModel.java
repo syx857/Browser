@@ -9,11 +9,10 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.tech.adapter.TokenAdapter;
 import com.tech.domain.History;
 import com.tech.model.WebFragmentToken;
 import com.tech.ui.WebFragment;
-
-import java.util.List;
 
 public class MainViewModel extends AndroidViewModel {
     WebFragmentManager manager;
@@ -35,9 +34,8 @@ public class MainViewModel extends AndroidViewModel {
         manager.clearFragmentManager();
     }
 
-    public void notifyTokenChanged() {
-        manager.notifyCurrentTokenChanged();
-        manager.notifyTokenListChanged();
+    public void notifyTokenChanged(WebFragmentToken token) {
+        manager.notifyTokenChanged(token);
     }
 
     public LiveData<WebFragmentToken> getCurrentToken() {
@@ -46,18 +44,15 @@ public class MainViewModel extends AndroidViewModel {
 
     public WebFragmentToken getCurrentTokenValue() {
         return manager.getCurrentTokenValue();
+
     }
 
-    public LiveData<List<WebFragmentToken>> getList() {
-        return manager.getList();
+    public LiveData<Integer> getCount() {
+        return manager.getCount();
     }
 
     public boolean isEmpty() {
         return manager.isEmpty();
-    }
-
-    public boolean isShown() {
-        return manager.isShown();
     }
 
     public void addFragment() {
@@ -68,11 +63,11 @@ public class MainViewModel extends AndroidViewModel {
         manager.addFragment(msg);
     }
 
-    public void showFragment(WebFragmentToken token) {
+    public void showFragment(@NonNull WebFragmentToken token) {
         manager.showFragment(token);
     }
 
-    public void removeFragment(WebFragmentToken token) {
+    public void removeFragment(@NonNull WebFragmentToken token) {
         WebFragmentToken current = manager.getCurrentTokenValue();
         if (current == null) {
             WebFragmentToken next = manager.findNextToken(token);
@@ -94,9 +89,7 @@ public class MainViewModel extends AndroidViewModel {
             }
             return;
         }
-        {
-            manager.removeFragment(token);
-        }
+        manager.removeFragment(token);
     }
 
     public LiveData<Integer> getProgress() {
@@ -111,7 +104,7 @@ public class MainViewModel extends AndroidViewModel {
         return manager.findNextToken(token);
     }
 
-    public void loadUrl(String url) {
+    public void loadUrl(@NonNull String url) {
         WebFragment fragment = manager.getCurrentFragment();
         if (fragment == null) {
             addFragment();
@@ -128,12 +121,11 @@ public class MainViewModel extends AndroidViewModel {
         return false;
     }
 
-    public boolean goForward() {
+    public void goForward() {
         WebFragment fragment = manager.getCurrentFragment();
         if (fragment != null) {
-            return fragment.goForward();
+            fragment.goForward();
         }
-        return false;
     }
 
     public void goHome() {
@@ -171,7 +163,7 @@ public class MainViewModel extends AndroidViewModel {
         return typeIn;
     }
 
-    public void setTypeIn(String s) {
+    public void setTypeIn(@NonNull String s) {
         typeIn.setValue(s);
     }
 
@@ -179,7 +171,11 @@ public class MainViewModel extends AndroidViewModel {
         return manager.getSize();
     }
 
-    public void insert(History history) {
+    public TokenAdapter getAdapter() {
+        return manager.getAdapter();
+    }
+
+    public void insert(@NonNull History history) {
         //TODO
     }
 }

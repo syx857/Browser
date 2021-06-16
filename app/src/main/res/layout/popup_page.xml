@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@android:color/white"
     android:paddingVertical="5dp">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
-        tools:itemCount="13"
-        tools:listitem="@layout/page_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <ImageView
-        android:clickable="true"
-        android:background="@drawable/background_ripple"
-        android:paddingVertical="5dp"
-        android:layout_below="@id/recycler"
-        android:id="@+id/add"
-        android:src="@drawable/ic_outline_add_24"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        tools:itemCount="13"
+        tools:listitem="@layout/page_item" />
+
+    <ImageView
+        android:id="@+id/add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/recycler"
+        android:background="@drawable/background_ripple"
+        android:clickable="true"
+        android:paddingVertical="5dp"
+        android:src="@drawable/ic_outline_add_24"
         tools:ignore="ContentDescription" />
 
 </RelativeLayout>
