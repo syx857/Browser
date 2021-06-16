@@ -157,6 +157,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     protected void onDestroy() {
         super.onDestroy();
         viewModel.clearFragmentManager();
+        if (pagePopup != null) {
+            pagePopup.dismiss();
+            pagePopup = null;
+        }
     }
 
     public void onClick(View v) {
@@ -206,12 +210,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
                 clearEditTextFocus();
             } else {
                 if (!goBackward()) {
-                    viewModel.removeFragment(viewModel.getCurrentTokenValue());
                     if (viewModel.getSize() == 1) {
+                        viewModel.removeFragment(viewModel.getCurrentTokenValue());
                         finish();
+                    } else {
+                        viewModel.removeFragment(viewModel.getCurrentTokenValue());
                     }
                 }
-                ;
             }
             return true;
         }

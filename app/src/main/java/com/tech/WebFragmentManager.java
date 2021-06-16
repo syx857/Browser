@@ -14,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.tech.adapter.TokenAdapter;
 import com.tech.model.WebFragmentToken;
-import com.tech.ui.WebFragment;
-import com.tech.ui.WebViewModel;
+import com.tech.ui.web.WebFragment;
+import com.tech.ui.web.WebViewModel;
 
 import org.jetbrains.annotations.NotNull;
 

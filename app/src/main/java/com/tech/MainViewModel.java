@@ -12,7 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.tech.adapter.TokenAdapter;
 import com.tech.domain.History;
 import com.tech.model.WebFragmentToken;
-import com.tech.ui.WebFragment;
+import com.tech.ui.web.WebFragment;
 
 public class MainViewModel extends AndroidViewModel {
     WebFragmentManager manager;

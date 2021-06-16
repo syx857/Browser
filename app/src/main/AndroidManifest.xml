@@ -14,7 +14,11 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
-            android:hardwareAccelerated="true">
+            android:alwaysRetainTaskState="true"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|layoutDirection|screenLayout|smallestScreenSize|uiMode"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

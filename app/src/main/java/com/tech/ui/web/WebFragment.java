@@ -1,4 +1,4 @@
-package com.tech.ui;
+package com.tech.ui.web;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -50,11 +50,15 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
             webViewTransport.setWebView(binding.webView);
             webViewModel.setResultMsg(null);
             resultMsg.sendToTarget();
+            webViewModel.setBundle(new Bundle());
+            Log.d(TAG, "onCreateView: is transfer");
         } else if (webViewModel.getBundle() == null && webViewModel.getResultMsg() == null) {
             binding.webView.loadUrl(HOME);
             webViewModel.setBundle(new Bundle());
+            Log.d(TAG, "onCreateView: is new page");
         } else {
             binding.webView.restoreState(webViewModel.getBundle());
+            Log.d(TAG, "onCreateView: is restore");
         }
 
         token = webViewModel.getToken();

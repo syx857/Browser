@@ -1,4 +1,4 @@
-package com.tech.ui;
+package com.tech.ui.web;
 
 import android.os.Bundle;
 import android.os.Message;
