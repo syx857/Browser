@@ -1,19 +1,16 @@
 package com.tech.repository;
 
 import android.app.Application;
-import android.content.Context;
 
-import androidx.annotation.NonNull;
-import androidx.work.Data;
 import androidx.work.WorkManager;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
 
 import com.tech.dao.BrowserDao;
 import com.tech.database.BrowserDatabase;
+import com.tech.domain.Bookmark;
 import com.tech.domain.History;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BrowserRepository {
     static BrowserRepository repository;
@@ -24,7 +21,7 @@ public class BrowserRepository {
 
     WorkManager workManager;
 
-    ExecutorService service;
+    ExecutorService service = Executors.newCachedThreadPool();
 
     BrowserRepository(Application application) {
         this.application = application;
@@ -40,28 +37,23 @@ public class BrowserRepository {
         return repository;
     }
 
-    public void insert(History history) {
-        Data data = new Data.Builder()
-                .putString("title", history.title)
-                .putString("url", history.url)
-                .putLong("date", history.date.getTime())
-                .build();
+    public void insert(History... histories) {
+        service.submit(() -> browserDao.insert(histories));
     }
 
-    public class InsertHistory extends Worker {
-        History[] histories;
-
-        public InsertHistory(@NonNull Context context, @NonNull WorkerParameters workerParams, History... histories) {
-            super(context, workerParams);
-            this.histories = histories;
-        }
-
-        @NonNull
-        @Override
-        public Result doWork() {
-            browserDao.insert(histories);
-            return Result.success();
-        }
+    public void delete(History... histories) {
+        service.submit(() -> browserDao.delete(histories));
     }
 
+    public void insert(Bookmark... bookmarks) {
+        service.submit(() -> browserDao.insert(bookmarks));
+    }
+
+    public void delete(Bookmark... bookmarks) {
+        service.submit(() -> browserDao.deleteBookmarks(bookmarks));
+    }
+
+    public void update(Bookmark... bookmarks) {
+        service.submit(() -> browserDao.update(bookmarks));
+    }
 }

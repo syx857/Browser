@@ -23,7 +23,7 @@ public abstract class BrowserDao {
     public abstract void delete(History... histories);
 
     @Query("SELECT * FROM history ORDER BY date DESC")
-    public abstract List<History> getHistories();
+    public abstract LiveData<List<History>> getHistories();
 
     @Insert
     public abstract void insert(Bookmark... bookmarks);
