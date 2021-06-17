@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <MultiSelectListPreference
-        android:defaultValue="@android:array/phoneTypes"
-        android:entries="@android:array/phoneTypes"
-        android:entryValues="@android:array/phoneTypes"
-        android:key="multi_select_list_preference_1"
-        android:title="Multi select list preference" />
+    <ListPreference
+        android:defaultValue="true"
+        android:entries="@array/search_engine_name"
+        android:entryValues="@array/search_engine_prefix"
+        android:key="search engine"
+        android:persistent="true"
+        android:title="搜索引擎" />
+
 </PreferenceScreen>

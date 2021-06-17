@@ -19,6 +19,7 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|layoutDirection|screenLayout|smallestScreenSize|uiMode"
             android:hardwareAccelerated="true"
             android:launchMode="singleTask"
+            android:screenOrientation="user"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

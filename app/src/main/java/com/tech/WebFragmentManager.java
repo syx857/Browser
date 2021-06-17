@@ -17,8 +17,6 @@ import com.tech.model.WebFragmentToken;
 import com.tech.ui.web.WebFragment;
 import com.tech.ui.web.WebViewModel;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Vector;
 
@@ -103,11 +101,11 @@ public class WebFragmentManager {
              */
             webFragment.getLifecycle().addObserver(new DefaultLifecycleObserver() {
                 @Override
-                public void onCreate(@NonNull @NotNull LifecycleOwner owner) {
+                public void onCreate(@NonNull LifecycleOwner owner) {
                     WebViewModel viewModel = new ViewModelProvider(webFragment).get(WebViewModel.class);
-                    viewModel.setResultMsg(message);
                     viewModel.setToken(token);
-                    Log.d("hy-hy-hy", "inject dependency: ");
+                    viewModel.setResultMsg(message);
+                    Log.d(TAG, "inject dependency: token: " + token);
                     webFragment.getLifecycle().removeObserver(this);
                 }
             });

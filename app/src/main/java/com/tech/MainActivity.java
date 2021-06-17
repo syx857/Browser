@@ -22,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
 import com.tech.databinding.ActivityMainBinding;
 import com.tech.model.WebFragmentToken;
@@ -186,7 +187,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
             //TODO popupWindow
         }
         if (v == binding.suggestView.suggestSearch.getRoot()) {
-            loadUrl("https://www.baidu.com/s?ie=UTF-8&wd=" + Uri.encode(binding.appBar.editText.getText().toString()));
+            String prefix = PreferenceManager.getDefaultSharedPreferences(this).getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
+            loadUrl(prefix + Uri.encode(binding.appBar.editText.getText().toString()));
         }
         if (v == binding.suggestView.suggestUrl.getRoot()) {
             loadUrl(binding.appBar.editText.getText().toString());

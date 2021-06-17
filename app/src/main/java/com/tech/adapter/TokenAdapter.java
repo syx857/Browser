@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tech.R;
-import com.tech.databinding.PageItemBinding;
+import com.tech.databinding.ItemPageBinding;
 import com.tech.model.WebFragmentToken;
 
 import java.util.List;
@@ -68,7 +68,7 @@ public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.TokenViewHol
     @NonNull
     @Override
     public TokenViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        PageItemBinding binding = PageItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        ItemPageBinding binding = ItemPageBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new TokenViewHolder(binding);
     }
 
@@ -99,10 +99,10 @@ public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.TokenViewHol
      */
     class TokenViewHolder extends RecyclerView.ViewHolder {
 
-        PageItemBinding binding;
+        ItemPageBinding binding;
         WebFragmentToken token;
 
-        public TokenViewHolder(@NonNull PageItemBinding b) {
+        public TokenViewHolder(@NonNull ItemPageBinding b) {
             super(b.getRoot());
             binding = b;
         }

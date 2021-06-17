@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
 import com.tech.MainViewModel;
 import com.tech.client.MyWebChromeClient;
@@ -40,7 +41,8 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
             String s = (String) msg.obj;
-            loadUrl("https://www.baidu.com/s?ie=UTF-8&wd=" + Uri.encode(s));
+            String prefix = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
+            loadUrl(prefix + Uri.encode(s));
             return true;
         }
         return false;
@@ -56,11 +58,16 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         WebViewUtils.initialWebView(binding.webView);
         binding.webView.setWebViewClient(new MyWebViewClient(this));
         binding.webView.setWebChromeClient(new MyWebChromeClient(this));
-
+        binding.webView.setDownloadListener(this::onDownloadStart);
+        token = webViewModel.getToken();
         load();
         initial();
         Log.d(TAG, "onCreateView: get dependency token: " + token);
         return binding.getRoot();
+    }
+
+    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+        Log.d(TAG, "onDownloadStart: url: " + url + " userAgent: " + userAgent + " contentDisposition: " + " mimetype: " + mimetype + contentDisposition + " contentLength: " + contentLength);
     }
 
     void load() {
@@ -77,7 +84,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
             return;
         }
         binding.webView.loadUrl(HOME);
-        token = webViewModel.getToken();
     }
 
     void initial() {

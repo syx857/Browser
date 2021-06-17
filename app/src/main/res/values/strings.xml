@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">tech browser</string>
+    <string-array name="search_engine_name">
+        <item>百度</item>
+        <item>谷歌</item>
+        <item>必应</item>
+        <item>DuckDuckGo</item>
+        <item>Yandex</item>
+    </string-array>
+    <string-array name="search_engine_prefix">
+        <item>https://www.baidu.com/s?ie=UTF-8&amp;wd=</item>
+        <item>https://www.google.com/search?q=</item>
+        <item>https://cn.bing.com/search?q=</item>
+        <item>https://duckduckgo.com/?q=</item>
+        <item>https://yandex.com/search/?text=</item>
+    </string-array>
 </resources>
