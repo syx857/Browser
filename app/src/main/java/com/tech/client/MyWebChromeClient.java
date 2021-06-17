@@ -47,15 +47,17 @@ public class MyWebChromeClient extends WebChromeClient {
     @Override
     public void onShowCustomView(View view, CustomViewCallback callback) {
         Log.d(TAG, "onShowCustomView: ");
-        //TODO full screen
-        super.onShowCustomView(view, callback);
+        if (this.callback != null) {
+            this.callback.onShowCustomView(view, callback);
+        }
     }
 
     @Override
     public void onHideCustomView() {
         Log.d(TAG, "onHideCustomView: ");
-        //TODO cancel full screen
-        super.onHideCustomView();
+        if (callback != null) {
+            callback.onHideCustomView();
+        }
     }
 
     public interface Callback {
@@ -66,5 +68,9 @@ public class MyWebChromeClient extends WebChromeClient {
         void onReceivedTitle(String title);
 
         void onReceivedIcon(Bitmap icon);
+
+        void onShowCustomView(View view, CustomViewCallback callback);
+
+        void onHideCustomView();
     }
 }

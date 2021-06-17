@@ -7,10 +7,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 
@@ -26,8 +28,6 @@ import com.tech.client.MyWebViewClient;
 import com.tech.databinding.FragmentWebBinding;
 import com.tech.model.WebFragmentToken;
 import com.tech.utils.WebViewUtils;
-
-import org.jetbrains.annotations.NotNull;
 
 public class WebFragment extends Fragment implements MyWebViewClient.Callback, MyWebChromeClient.Callback {
     public static final String TAG = "WebFragment";
@@ -59,11 +59,54 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         binding.webView.setWebViewClient(new MyWebViewClient(this));
         binding.webView.setWebChromeClient(new MyWebChromeClient(this));
         binding.webView.setDownloadListener(this::onDownloadStart);
+        //binding.webView.setOnCreateContextMenuListener(this::webViewOnCreateContextMenu);
         token = webViewModel.getToken();
         load();
         initial();
         Log.d(TAG, "onCreateView: get dependency token: " + token);
         return binding.getRoot();
+    }
+
+    /**
+     * WebView 长按菜单
+     */
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        if (v == binding.webView) {
+            WebView.HitTestResult hitTestResult = binding.webView.getHitTestResult();
+            String str = hitTestResult.getExtra();
+            switch (hitTestResult.getType()) {
+                case WebView.HitTestResult.SRC_ANCHOR_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: SRC_ANCHOR_TYPE " + str);
+                    //requireActivity().getMenuInflater().inflate();
+                    //TODO is url
+                    return;
+                case WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: SRC_IMAGE_ANCHOR_TYPE " + str);
+                    //TODO is url
+                    return;
+                case WebView.HitTestResult.PHONE_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: PHONE_TYPE " + str);
+                    return;
+                case WebView.HitTestResult.EMAIL_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: EMAIL_TYPE " + str);
+                    return;
+                case WebView.HitTestResult.EDIT_TEXT_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: EDIT_TEXT_TYPE " + str);
+                    return;
+                case WebView.HitTestResult.GEO_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: GEO_TYPE " + str);
+                    return;
+                case WebView.HitTestResult.IMAGE_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: IMAGE_TYPE " + str);
+                    return;
+                case WebView.HitTestResult.UNKNOWN_TYPE:
+                    Log.d(TAG, "webViewOnCreateContextMenu: UNKNOWN_TYPE " + str);
+                    return;
+                default:
+            }
+        }
+        super.onCreateContextMenu(menu, v, menuInfo);
     }
 
     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
@@ -115,7 +158,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull @NotNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         binding.webView.saveState(webViewModel.getBundle());
     }
@@ -139,6 +182,24 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     public void onReceivedIcon(Bitmap icon) {
         Log.d(TAG, "onReceivedIcon: ");
         setFavicon(icon);
+    }
+
+    /**
+     * 全屏模式
+     *
+     * @param callback 退出全屏回调
+     */
+    @Override
+    public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback) {
+        //TODO full screen
+    }
+
+    /**
+     * 退出全屏模式
+     */
+    @Override
+    public void onHideCustomView() {
+        //TODO cancel full screen
     }
 
     @Override
