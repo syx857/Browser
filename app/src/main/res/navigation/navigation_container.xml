@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_container"
+    app:startDestination="@id/blankFragment">
+
+    <fragment
+        android:id="@+id/bookmarkFragment"
+        android:name="com.tech.ui.bookmark.BookmarkFragment"
+        android:label="BookmarkFragment"
+        tools:layout="@layout/fragment_bookmark" />
+
+    <fragment
+        android:id="@+id/downloadFragment"
+        android:name="com.tech.ui.download.DownloadFragment"
+        android:label="DownloadFragment"
+        tools:layout="@layout/fragment_download" />
+
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.tech.ui.history.HistoryFragment"
+        android:label="HistoryFragment"
+        tools:layout="@layout/fragment_history" />
+
+    <fragment
+        android:id="@+id/settingFragment"
+        android:name="com.tech.ui.setting.SettingFragment"
+        android:label="SettingFragment" />
+
+    <fragment
+        android:id="@+id/blankFragment"
+        android:name="com.tech.ui.blank.BlankFragment"
+        android:label="BlankFragment" />
+
+</navigation>

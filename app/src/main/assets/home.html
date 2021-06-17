@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" content="width=device-width, initial-scale=1.0, user-scalable=no"
+    <meta charset="utf-8" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
           name="viewport">
-    <title>主页</title>
+    <title>首页</title>
 </head>
 <style type="text/css">
 		.container{
-			height: 100vh;
+			height: 90vh;
 			display: flex;
 			justify-content: flex-start;
 			align-items: center;
@@ -52,18 +52,23 @@
 		.suggest ul li:hover{
 			background-color: #E5E5E5;
 		}
-		img{
+		.image{
 			width: 90vw;
 			height: 50vh;
 		}
-
-
-
+		.image img{
+			object-fit: contain;
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
 
 </style>
 <body>
 <div class="container">
-    <img src="photo.png">
+    <div class="image">
+        <img src="photo.png">
+    </div>
     <div class="search-box">
         <input autofocus="autofocus" class="search-input-text" placeholder="关键词" type="text"
                value=""/>
@@ -75,4 +80,111 @@
     </div>
 </div>
 </body>
+<script type="text/javascript">
+		/*function getHtmlFontSize(){
+			let htmlWidth = document.documentElement.clientWidth || document.body.clientWidth;
+			console.log(htmlWidth);
+			
+			let htmlDom = document.getElementsByTagName("html")[0];
+			console.log(htmlDom);
+			
+			htmlDom.style.fontSize = htmlWidth/20 + 'px';
+		}
+		getHtmlFontSize();*/
+		//window.addEventListener('resize',getHtmlFontSize);
+		const suggestContainer = document.getElementsByClassName("suggest")[0];
+		const searchInput = document.getElementsByClassName("search-input-text")[0];
+		const searchBox = document.getElementsByClassName("search-box")[0];
+		const searchResult = document.getElementById("search-result");
+
+		function clearContent(){
+			const size = searchResult.childNodes.length;
+			for(let i = size - 1; i >= 0; i--){
+				searchResult.removeChild(searchResult.childNodes[i]);
+			}
+			//suggestContainer.style.display = 'none';
+		}
+		searchInput.onkeyup = function(e){
+			suggestContainer.style.display = "block";
+			
+			if(this.value.length === 0){
+				clearContent();
+				return;
+			}
+			if(this.timer){
+				clearTimeout(this.timer);
+			}
+			if(e.keyCode !== 40 && e.keyCode !== 38){
+				this.timer = setTimeout(() => {
+					const script = document.createElement("script");
+					script.src = "https://www.baidu.com/su?&wd=" + encodeURI(this.value.trim()) + 
+					"&p=3&cb=handleSuggestion";
+					document.body.appendChild(script);
+				},130)
+			}
+		};
+		function handleSuggestion(res){
+			//返回的结果是以一个对象的形式返回的,q 对应检索关键词，s对应返回的结果(数组形式)
+			clearContent();
+			let result = res.s;
+			if(result.length > 4){
+				result = result.slice(0,5)
+			}
+			for(let i = 0; i < result.length;i++){
+				const liObj = document.createElement("li");
+				liObj.innerHTML = result[i];
+				searchResult.appendChild(liObj);
+			}
+			(function(){
+				const s = document.querySelectorAll('script');
+				let len = s.length;
+				for(let i = 1; i < len; i++){
+					document.body.removeChild(s[i]);
+				}
+			})()
+		}
+		
+		function jumpPage(){
+			//window.open(`https://www.baidu.com/s?word=${encodeURI(searchInput.value)}`);
+			_TECH_BROWSER_.homeSearch(searchInput.value)
+		}
+		
+		searchBox.addEventListener("click",function(e){
+			if(e.target.nodeName.toLowerCase()==='li'){
+				const keywords = e.target.innerText;
+				searchInput.value = keywords;
+				jumpPage();
+			}else if(e.target.id === 'btn'){
+				jumpPage();
+			}
+		},false);
+
+		let i = 0;
+		let flag = 1;
+
+		searchBox.addEventListener("keydown",function(e){
+			const size = searchResult.childNodes.length;
+			if(e.keyCode === 13){
+				jumpPage();
+			}
+			if(e.keyCode === 40){
+				if(flag === 0){
+					i = i + 2;
+				}
+				flag = 1;
+				e.preventDefault();
+				if(i < 0){
+					i = size - 1;
+				}
+				if(i > -1){
+					searchInput.value = searchResult.childNodes[i--].innerText;
+				}
+			}
+			document.onclick = function(){
+				clearContent();
+				suggestContainer.style.display = 'none';
+			}
+		},false)
+
+</script>
 </html>

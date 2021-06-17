@@ -1,12 +1,16 @@
 package com.tech.ui.web;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 
@@ -27,11 +31,20 @@ import org.jetbrains.annotations.NotNull;
 public class WebFragment extends Fragment implements MyWebViewClient.Callback, MyWebChromeClient.Callback {
     public static final String TAG = "WebFragment";
     public static final String HOME = "file:///android_asset/home.html";
+    public static final int SEARCH = 0x33;
 
     FragmentWebBinding binding;
     WebViewModel webViewModel;
     MainViewModel mainViewModel;
     WebFragmentToken token;
+    Handler handler = new Handler(Looper.getMainLooper(), msg -> {
+        if (msg.what == SEARCH) {
+            String s = (String) msg.obj;
+            loadUrl("https://www.baidu.com/s?ie=UTF-8&wd=" + Uri.encode(s));
+            return true;
+        }
+        return false;
+    });
 
     @Nullable
     @Override
@@ -44,27 +57,42 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         binding.webView.setWebViewClient(new MyWebViewClient(this));
         binding.webView.setWebChromeClient(new MyWebChromeClient(this));
 
+        load();
+        initial();
+        Log.d(TAG, "onCreateView: get dependency token: " + token);
+        return binding.getRoot();
+    }
+
+    void load() {
         if (webViewModel.getResultMsg() != null) {
             Message resultMsg = webViewModel.getResultMsg();
             WebView.WebViewTransport webViewTransport = (WebView.WebViewTransport) resultMsg.obj;
             webViewTransport.setWebView(binding.webView);
-            webViewModel.setResultMsg(null);
             resultMsg.sendToTarget();
-            webViewModel.setBundle(new Bundle());
-            Log.d(TAG, "onCreateView: is transfer");
-        } else if (webViewModel.getBundle() == null && webViewModel.getResultMsg() == null) {
-            binding.webView.loadUrl(HOME);
-            webViewModel.setBundle(new Bundle());
-            Log.d(TAG, "onCreateView: is new page");
-        } else {
-            binding.webView.restoreState(webViewModel.getBundle());
-            Log.d(TAG, "onCreateView: is restore");
+            webViewModel.setResultMsg(null);
+            return;
         }
-
+        if (webViewModel.getBundle() != null) {
+            binding.webView.restoreState(webViewModel.getBundle());
+            return;
+        }
+        binding.webView.loadUrl(HOME);
         token = webViewModel.getToken();
-        Log.d(TAG, "onCreateView: get dependency token: " + token);
+    }
 
-        return binding.getRoot();
+    void initial() {
+        if (webViewModel.getBundle() == null) {
+            webViewModel.setBundle(new Bundle());
+        }
+        binding.webView.addJavascriptInterface(this, "_TECH_BROWSER_");
+    }
+
+    @JavascriptInterface
+    public void homeSearch(String text) {
+        Message msg = Message.obtain();
+        msg.what = SEARCH;
+        msg.obj = text;
+        handler.sendMessage(msg);
     }
 
     @Override
@@ -109,20 +137,21 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
 
     @Override
     public void onPageStarted(String url, Bitmap favicon) {
-        setTitle(url);
         Log.d(TAG, "onPageStarted: url: " + url);
         if (url.equals("data:text/html; charset=UTF-8,")) {
             setUrl("");
+            setTitle("about:blank");
             setFavicon(null);
         }
         if (url.equals(HOME)) {
             setUrl("");
+            setTitle("首页");
             setFavicon(null);
-            return;
         } else {
+            setTitle(url);
             setUrl(url);
+            setFavicon(favicon);
         }
-        setFavicon(favicon);
     }
 
     @Override

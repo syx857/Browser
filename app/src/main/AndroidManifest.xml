@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechBrowser"
         android:usesCleartextTraffic="true">
+
         <activity
             android:name=".MainActivity"
             android:alwaysRetainTaskState="true"
@@ -24,6 +25,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <activity
+            android:name=".ContainerActivity"
+            android:alwaysRetainTaskState="true"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|layoutDirection|screenLayout|smallestScreenSize|uiMode"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleInstance"
+            android:windowSoftInputMode="adjustPan" />
+
+    </application>
 </manifest>

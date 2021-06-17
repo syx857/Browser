@@ -20,7 +20,7 @@ public class WebViewUtils {
         WebSettings settings = webView.getSettings();
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         settings.setDomStorageEnabled(true);
-        settings.setAppCacheEnabled(true);
+        //settings.setAppCacheEnabled(true);
         settings.setJavaScriptEnabled(true);
         settings.setSupportMultipleWindows(true);
         settings.setDomStorageEnabled(true);

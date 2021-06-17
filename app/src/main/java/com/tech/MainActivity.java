@@ -1,6 +1,7 @@
 package com.tech;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -251,12 +252,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         return false;
     }
 
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    /**
+     * 跳转到功能界面，设置、书签、下载等
+     *
+     * @param id 导航id，在/res/navigation/navigation_container.xml注册
+     */
+    public void toContainerActivity(int id) {
+        Intent intent = new Intent(this, ContainerActivity.class);
+        intent.putExtra("dest", id);
+        startActivity(intent);
     }
 
     @Override
@@ -282,5 +286,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         viewModel.showFragment(token);
         pagePopup.dismiss();
         pagePopup = null;
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
     }
 }
