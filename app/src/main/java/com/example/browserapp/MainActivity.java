@@ -1,20 +1,24 @@
 package com.example.browserapp;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebChromeClient;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
+import androidx.lifecycle.ViewModelProvider;
 import com.example.browserapp.databinding.ActivityMainBinding;
+import com.example.browserapp.domain.Bookmark;
+import com.example.browserapp.viewmodel.BookmarkViewModel;
 import com.example.browserapp.web.BrowserWebViewClient;
 import com.github.lzyzsd.jsbridge.BridgeWebView;
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
+    BookmarkViewModel bookmarkViewModel;
 
     public static final int REQUEST_CODE_HISTORY = 0;
     public static final int REQUEST_CODE_LABEL = 1;
@@ -27,16 +31,16 @@ public class MainActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-
         BridgeWebView webView = binding.webView;
-        webView.setWebViewClient(new BrowserWebViewClient(webView));
+        BrowserWebViewClient webViewClient = new BrowserWebViewClient(webView);
+        webView.setWebViewClient(webViewClient);
         //binding.webView.loadUrl("https://wwww.baidu.com/");
         webView.loadUrl("file:///android_asset/index.html");
         webView.setWebChromeClient(new WebChromeClient());
 
         //开启webView的LocalStorage功能，使H5可以保存数据
         webView.getSettings().setDomStorageEnabled(true);
-
+        bookmarkViewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
 
         binding.historyButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -46,11 +50,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        binding.labelButton.setOnClickListener(new View.OnClickListener() {
+        binding.labelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent labelIntent = new Intent(MainActivity.this, BookmarkActivity.class);
                 startActivityForResult(labelIntent, REQUEST_CODE_LABEL);
+            }
+        });
+        binding.addBookmarkButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bookmark bookmark = new Bookmark(webView.getUrl(), webView.getTitle());
+                bookmarkViewModel.addBookmark(bookmark);
             }
         });
     }
@@ -70,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_HISTORY:
+            case REQUEST_CODE_LABEL:
                 if (resultCode == RESULT_OK) {
                     if (data == null) {
                         return;
@@ -77,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     String resultUrl = data.getStringExtra("url");
                     binding.webView.loadUrl(resultUrl);
                 }
+                break;
         }
     }
 }

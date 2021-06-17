@@ -13,7 +13,6 @@ import com.github.lzyzsd.jsbridge.BridgeWebViewClient;
 
 public class BrowserWebViewClient extends BridgeWebViewClient {
 
-    HistoryRepository historyRepository;
     boolean isLoad;
 
     public BrowserWebViewClient(BridgeWebView webView) {
@@ -47,7 +46,7 @@ public class BrowserWebViewClient extends BridgeWebViewClient {
     }
 
     public void addToHistory(WebView view) {
-        historyRepository = new HistoryRepository(view.getContext());
+        HistoryRepository historyRepository = new HistoryRepository(view.getContext());
         WebHistoryItem historyItem = view.copyBackForwardList().getCurrentItem();
 
         History history = new History(historyItem.getTitle(), historyItem.getUrl(),

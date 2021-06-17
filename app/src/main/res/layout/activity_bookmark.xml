@@ -4,21 +4,20 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  tools:context=".HistoryActivity"
+  tools:context=".BookmarkActivity"
   android:orientation="vertical"
   android:paddingLeft="10dp"
   android:paddingRight="10dp">
 
   <androidx.appcompat.widget.Toolbar
-    android:id="@+id/history_toolbar"
+    android:id="@+id/bookmark_toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     app:popupTheme="@style/Widget.AppCompat.PopupMenu.Overflow"
-
     />
 
   <ListView
-    android:id="@+id/history_list_view"
+    android:id="@+id/bookmark_list_view"
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="1"
@@ -29,7 +28,7 @@
   <ImageButton
     android:src="@drawable/ic_delete"
     android:background="@color/white"
-    android:id="@+id/multi_history_delete"
+    android:id="@+id/multi_bookmark_delete"
     android:scaleType="fitCenter"
     android:gravity="center"
     android:layout_width="match_parent"

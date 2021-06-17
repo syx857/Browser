@@ -3,10 +3,11 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   tools:context="com.example.browserapp.HistoryActivity">
-  <item android:id="@+id/search_history"
+
+  <item
+    android:id="@+id/search"
     android:title="搜索"
     app:showAsAction="always"
-    app:actionViewClass="androidx.appcompat.widget.SearchView"
-    />
+    app:actionViewClass="androidx.appcompat.widget.SearchView" />
 
 </menu>

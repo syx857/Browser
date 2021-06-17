@@ -1,14 +1,210 @@
 package com.example.browserapp;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.app.SearchManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import com.example.browserapp.R;
+import android.util.SparseBooleanArray;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SearchView.OnCloseListener;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import com.example.browserapp.adapter.BookmarkAdapter;
+import com.example.browserapp.databinding.ActivityBookmarkBinding;
+import com.example.browserapp.domain.Bookmark;
+import com.example.browserapp.viewmodel.BookmarkViewModel;
+import java.util.ArrayList;
+import java.util.List;
 
-public class BookmarkActivity extends AppCompatActivity {
+public class BookmarkActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+
+    ActivityBookmarkBinding binding;
+    BookmarkViewModel viewModel;
+    BookmarkAdapter adapter;
+    List<Bookmark> bookmarkList;
+    SparseBooleanArray checkedStateMap = new SparseBooleanArray();
+    Boolean multiChoice = false;
+    List<Bookmark> checkedBookmark = new ArrayList<>();
+    boolean isSearching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_label);
+
+        binding = ActivityBookmarkBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        initToolBar();
+
+        viewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
+
+        viewModel.getBookmarkList().observe(this, bookmarks -> {
+            if(!isSearching) {
+                bookmarkList = bookmarks;
+                if (adapter == null) {
+                    adapter = new BookmarkAdapter(this, R.layout.bookmark_item, bookmarks);
+                    binding.bookmarkListView.setAdapter(adapter);
+                }
+                adapter.setBookmarkList(bookmarks);
+            }
+        });
+
+        binding.bookmarkListView.setOnItemClickListener(this);
+        registerForContextMenu(binding.bookmarkListView);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.bookmark_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.delete_bookmark:
+                Toast.makeText(getApplicationContext(), "删除书签", Toast.LENGTH_SHORT).show();
+                viewModel.deletebookmark(bookmarkList.get(info.position));
+                break;
+            case R.id.copy_bookmark_url:
+                ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                String url = bookmarkList.get(info.position).url;
+                ClipData data = ClipData.newPlainText("bookmark_url", url);
+                clipboardManager.setPrimaryClip(data);
+                Toast.makeText(this, "复制链接："+url, Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.clear_bookmark:
+                viewModel.deleteAll();
+                break;
+            case R.id.multi_choice_bookmark:
+                multiChoice = true;
+                adapter.setShowCheckbox(true);
+                setCheck(info.position);
+                adapter.notifyDataSetChanged();
+                binding.multiBookmarkDelete.setVisibility(View.VISIBLE);
+
+                binding.multiBookmarkDelete.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        viewModel.deletebookmark(
+                                checkedBookmark.toArray(new Bookmark[checkedBookmark.size()]));
+                        quitMultiChoice();
+                    }
+                });
+                break;
+            case R.id.edit_bookmark:
+                Intent intent = new Intent(BookmarkActivity.this, BookmarkEditActivity.class);
+                intent.putExtra("bookmark", bookmarkList.get(info.position));
+                startActivity(intent);
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        //SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setQueryHint("搜索书签");
+        searchView.setOnCloseListener(new OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                isSearching = false;
+                return false;
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                isSearching = true;
+                viewModel.searchBookmark(newText).observe(BookmarkActivity.this, bookmarks -> {
+                    adapter.setBookmarkList(bookmarks);
+                    bookmarkList = bookmarks;
+                });
+                return true;
+            }
+        });
+        return true;
+    }
+
+    private void initToolBar() {
+        Toolbar toolbar = binding.bookmarkToolbar;
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("书签");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (multiChoice) {
+            setCheck(position);
+        } else {
+            Bookmark bookmark = bookmarkList.get(position);
+            Intent intent = new Intent();
+            intent.putExtra("url", bookmark.url);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (multiChoice) {
+            quitMultiChoice();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    private void setCheck(int position) {
+        if (!checkedStateMap.get(position)) {
+            checkedStateMap.put(position, true);
+            checkedBookmark.add(bookmarkList.get(position));
+            adapter.setChecked(true, position);
+        } else {
+            checkedStateMap.put(position, false);
+            checkedBookmark.remove(bookmarkList.get(position));
+            adapter.setChecked(false, position);
+        }
+    }
+
+    private void quitMultiChoice() {
+        multiChoice = false;
+        adapter.setShowCheckbox(false);
+        adapter.clearCheckedState();
+        binding.multiBookmarkDelete.setVisibility(View.GONE);
+        checkedBookmark.clear();
+        checkedStateMap.clear();
     }
 }
