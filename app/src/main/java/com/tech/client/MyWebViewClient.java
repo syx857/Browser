@@ -1,11 +1,13 @@
 package com.tech.client;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class MyWebViewClient extends WebViewClient {
+    public static final String TAG = "MyWebViewClient";
     Callback callback;
 
     public MyWebViewClient(Callback callback) {
@@ -14,6 +16,7 @@ public class MyWebViewClient extends WebViewClient {
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        Log.d(TAG, "onPageStarted: ");
         if (callback != null) {
             callback.onPageStarted(url, favicon);
         }
@@ -21,6 +24,7 @@ public class MyWebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
+        Log.d(TAG, "onPageFinished: ");
         if (callback != null) {
             callback.onPageFinished(url);
         }

@@ -20,12 +20,16 @@ public class WebViewUtils {
         WebSettings settings = webView.getSettings();
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         settings.setDomStorageEnabled(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setUseWideViewPort(true);
         //settings.setAppCacheEnabled(true);
         settings.setJavaScriptEnabled(true);
         settings.setSupportMultipleWindows(true);
-        settings.setDomStorageEnabled(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        //Zoom
         settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
 
         CookieManager.getInstance().setAcceptCookie(true);
     }

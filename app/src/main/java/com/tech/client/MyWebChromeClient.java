@@ -47,12 +47,14 @@ public class MyWebChromeClient extends WebChromeClient {
     @Override
     public void onShowCustomView(View view, CustomViewCallback callback) {
         Log.d(TAG, "onShowCustomView: ");
+        //TODO full screen
         super.onShowCustomView(view, callback);
     }
 
     @Override
     public void onHideCustomView() {
         Log.d(TAG, "onHideCustomView: ");
+        //TODO cancel full screen
         super.onHideCustomView();
     }
 
