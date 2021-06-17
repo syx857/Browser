@@ -135,3 +135,89 @@ MainActivity持久化和接口
 #### WebFragmentManager.java
 
 WebFragment管理器
+
+
+
+## assets
+
+### home.html
+
+首页
+
+### photo.png
+
+图片
+
+
+
+## res
+
+### layout
+
+#### activity_container.xml
+
+ContainerActivity布局文件
+
+#### activity_main.xml
+
+MainActivity布局文件
+
+#### app_bar_main.xml
+
+MainActivity的应用栏布局文件
+
+#### fragment_bookmark.xml
+
+BookmarkFragment布局文件
+
+#### fragment_download.xml
+
+DownloadFragment布局文件
+
+#### fragment_history.xml
+
+HistoryFragment布局文件
+
+#### fragment_web.xml
+
+WebFragment布局文件
+
+#### item_page.xml
+
+网页标签布局文件
+
+#### item_suggest.xml
+
+地址栏建议项布局文件
+
+#### navigation_bar.xml
+
+MainActivity导航栏
+
+#### popup_page.xml
+
+标签页弹出窗布局文件
+
+#### suggest_search.xml
+
+建议搜索
+
+#### suggest_url.xml
+
+建议通过url访问
+
+#### suggest_view.xml
+
+MainActivity建议视图
+
+### navigation
+
+#### navigation_container.xml
+
+ContainerActivity导航文件，Fragment在这里注册导航id
+
+### xml
+
+#### preference_setting.xml
+
+用于SettingFragment的设置视图

@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/appBar"
-        layout="@layout/app_bar" />
+        layout="@layout/app_bar_main" />
 
     <ProgressBar
         android:id="@+id/progressBar"
