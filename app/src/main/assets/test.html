@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style type="text/css">
+			#test{
+				display: flex;
+				justify-content: center;
+			}
+			.btn{
+				flex:1;
+				margin: 0 5vw;
+				height: 5vh;
+				font-size: 1.5rem;
+			}
+
+    </style>
+</head>
+<body>
+<div id="test">
+    <button @click="btn1" class="btn">alert</button>
+    <button @click="btn2" class="btn">confirm</button>
+    <button @click="btn3" class="btn">prompt</button>
+</div>
+</body>
+<script type="text/javascript">
+		var test = new Vue({
+			el:'#test',
+			data:{
+				
+			},
+			methods:{
+				btn1:function(){
+					alert("这是一个弹出框");
+				},
+				btn2:function(){
+					confirm("这是一个对话框")
+				},
+				btn3:function(){
+					prompt("这是一个可输入的对话框","这是默认文本内容")
+				}
+			}
+		})
+
+</script>
+</html>

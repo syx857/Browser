@@ -1,23 +1,35 @@
 package com.tech.ui.web;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.webkit.JavascriptInterface;
+import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -27,12 +39,24 @@ import com.tech.client.MyWebChromeClient;
 import com.tech.client.MyWebViewClient;
 import com.tech.databinding.FragmentWebBinding;
 import com.tech.model.WebFragmentToken;
+import com.tech.utils.Const;
 import com.tech.utils.WebViewUtils;
 
 public class WebFragment extends Fragment implements MyWebViewClient.Callback, MyWebChromeClient.Callback {
     public static final String TAG = "WebFragment";
-    public static final String HOME = "file:///android_asset/home.html";
+    public static final String HOME = "file:///android_asset/test.html";
     public static final int SEARCH = 0x33;
+
+    /**
+     * for full screen
+     */
+    View overlay;
+    int orientation;
+    int visibility;
+    WebChromeClient.CustomViewCallback callback;
+    /**
+     * for full screen
+     */
 
     FragmentWebBinding binding;
     WebViewModel webViewModel;
@@ -191,7 +215,26 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
      */
     @Override
     public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback) {
+        if (overlay != null) {
+            this.callback.onCustomViewHidden();
+            return;
+        }
+        this.callback = callback;
         //TODO full screen
+        //view.setFitsSystemWindows(true);
+        overlay = view;
+        orientation = requireActivity().getRequestedOrientation();
+        visibility = requireActivity().getWindow().getDecorView().getSystemUiVisibility();
+        ((FrameLayout) requireActivity().getWindow().getDecorView()).addView(view,
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        requireActivity().getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                requireActivity().getWindow().getDecorView().setSystemUiVisibility(Const.FULLSCREEN_SYS_UI);
+            }
+        });
+        requireActivity().getWindow().getDecorView().setSystemUiVisibility(Const.FULLSCREEN_SYS_UI);
+        //requireActivity().getWindow().getW
     }
 
     /**
@@ -200,6 +243,94 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     @Override
     public void onHideCustomView() {
         //TODO cancel full screen
+        if (overlay == null) {
+            return;
+        }
+        ((FrameLayout) requireActivity().getWindow().getDecorView()).removeView(overlay);
+        overlay = null;
+        requireActivity().setRequestedOrientation(orientation);
+        requireActivity().getWindow().getDecorView().setSystemUiVisibility(visibility);
+        callback.onCustomViewHidden();
+        callback = null;
+    }
+
+    @Override
+    public boolean onJsAlert(String url, String message, JsResult result) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("此网页显示").setMessage(message);
+        builder.setPositiveButton("确定", (dialog, which) -> {
+            result.confirm();
+            dialog.dismiss();
+        });
+        builder.setCancelable(true);
+        builder.setOnCancelListener(dialog -> result.cancel());
+        builder.create().show();
+        return true;
+    }
+
+    @Override
+    public boolean onJsConfirm(String url, String message, JsResult result) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                result.confirm();
+            }
+            if (which == DialogInterface.BUTTON_NEGATIVE) {
+                result.cancel();
+            }
+            dialog.dismiss();
+        };
+        builder.setTitle("此网页显示").setMessage(message);
+        builder.setPositiveButton("确定", listener).setNegativeButton("取消", listener);
+        builder.setCancelable(false);
+        builder.create().show();
+        return true;
+    }
+
+    @Override
+    public boolean onJsPrompt(String url, String message, String defaultValue, JsPromptResult result) {
+        EditText input = new EditText(requireActivity());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(defaultValue);
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                result.confirm(input.getText().toString());
+            }
+            if (which == DialogInterface.BUTTON_NEGATIVE) {
+                result.cancel();
+            }
+            dialog.dismiss();
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setView(input);
+        builder.setTitle("此网页显示").setMessage(message);
+        builder.setPositiveButton("确定", listener).setNegativeButton("取消", listener);
+        builder.setCancelable(false);
+        builder.create().show();
+        return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        onHideCustomView();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    public void fullscreen() {
+        Window window = requireActivity().getWindow();
+        View decorView = window.getDecorView();
+        WindowInsets windowInsets = decorView.getRootWindowInsets();
+        decorView.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                return null;
+            }
+        });
+        WindowInsetsController insetsController = window.getInsetsController();
+        insetsController.hide(WindowInsets.Type.navigationBars());
+        insetsController.hide(WindowInsets.Type.statusBars());
+
     }
 
     @Override
