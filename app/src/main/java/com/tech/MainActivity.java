@@ -8,9 +8,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -204,7 +206,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         } else {
             int[] location = new int[2];
             binding.navigationBar.getRoot().getLocationOnScreen(location);
-            pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], binding.navigationBar.getRoot().getHeight());
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                getDisplay().getRealMetrics(displayMetrics);
+            } else {
+                getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+            }
+            pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
         }
     }
 
@@ -217,8 +225,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         } else {
             int[] location = new int[2];
             binding.navigationBar.getRoot().getLocationOnScreen(location);
-            menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], binding.navigationBar.getRoot().getMeasuredHeight());
-            Log.d(TAG, "doMenuPopup: y = " + binding.navigationBar.getRoot().getMeasuredHeight());
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                getDisplay().getRealMetrics(displayMetrics);
+            } else {
+                getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+            }
+            menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
         }
     }
 

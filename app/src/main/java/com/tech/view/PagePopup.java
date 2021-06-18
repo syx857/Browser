@@ -17,6 +17,8 @@ public class PagePopup extends PopupWindow implements TokenAdapter.Callback {
     PopupPageBinding binding;
     PagePopupCallback callback;
     TokenAdapter adapter;
+    int maxHeight;
+    int minHeight;
 
     public PagePopup(AppCompatActivity activity, PagePopupCallback cb, TokenAdapter adapter) {
         super(activity);
@@ -28,7 +30,6 @@ public class PagePopup extends PopupWindow implements TokenAdapter.Callback {
         adapter.setCallback(this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         binding.recycler.setAdapter(adapter);
-        binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(layoutManager);
     }
 
