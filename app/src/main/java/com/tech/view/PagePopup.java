@@ -1,5 +1,8 @@
 package com.tech.view;
 
+import android.content.res.Resources;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
@@ -14,14 +17,17 @@ import com.tech.databinding.PopupPageBinding;
 import com.tech.model.WebFragmentToken;
 
 public class PagePopup extends PopupWindow implements TokenAdapter.Callback {
+    public static final String TAG = "PagePopup";
+
+    AppCompatActivity activity;
     PopupPageBinding binding;
     PagePopupCallback callback;
     TokenAdapter adapter;
     int maxHeight;
-    int minHeight;
 
     public PagePopup(AppCompatActivity activity, PagePopupCallback cb, TokenAdapter adapter) {
         super(activity);
+        this.activity = activity;
         callback = cb;
         this.adapter = adapter;
         binding = PopupPageBinding.inflate(activity.getLayoutInflater());
@@ -62,6 +68,15 @@ public class PagePopup extends PopupWindow implements TokenAdapter.Callback {
         if (v == binding.add && callback != null) {
             callback.addWebFragment();
         }
+    }
+
+    public void setMaxHeight(int maxHeight) {
+        this.maxHeight = maxHeight;
+        Log.d(TAG, "setMaxHeight: " + maxHeight);
+        Resources r = activity.getResources();
+        int btnHeight = (int) Math.ceil(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, r.getDisplayMetrics()));
+        Log.d(TAG, "btnHeight: " + btnHeight);
+        binding.recycler.setMaxHeight((int) (maxHeight - btnHeight));
     }
 
     public interface PagePopupCallback {

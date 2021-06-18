@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
             } else {
                 getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
             }
+            pagePopup.setMaxHeight(binding.container.getHeight());
             pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
         }
     }
