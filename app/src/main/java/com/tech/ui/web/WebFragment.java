@@ -44,7 +44,7 @@ import com.tech.utils.WebViewUtils;
 
 public class WebFragment extends Fragment implements MyWebViewClient.Callback, MyWebChromeClient.Callback {
     public static final String TAG = "WebFragment";
-    public static final String HOME = "file:///android_asset/test.html";
+    public static final String HOME = "file:///android_asset/home.html";
     public static final int SEARCH = 0x33;
 
     /**
