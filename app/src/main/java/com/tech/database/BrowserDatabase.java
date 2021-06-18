@@ -14,8 +14,6 @@ import com.tech.domain.Bookmark;
 import com.tech.domain.Converters;
 import com.tech.domain.History;
 
-import org.jetbrains.annotations.NotNull;
-
 @Database(
         entities = {Bookmark.class, History.class},
         version = 1,
@@ -27,7 +25,7 @@ public abstract class BrowserDatabase extends RoomDatabase {
 
     static RoomDatabase.Callback callback = new RoomDatabase.Callback() {
         @Override
-        public void onCreate(@NonNull @NotNull SupportSQLiteDatabase db) {
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
             BrowserDao browserDao = database.getBrowserDao();
             new Thread() {

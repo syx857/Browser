@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tech.R;
 import com.tech.adapter.TokenAdapter;
 import com.tech.databinding.PopupPageBinding;
 import com.tech.model.WebFragmentToken;
@@ -22,16 +23,24 @@ public class PagePopup extends PopupWindow implements TokenAdapter.Callback {
         callback = cb;
         this.adapter = adapter;
         binding = PopupPageBinding.inflate(activity.getLayoutInflater());
-        setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-        setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-        setContentView(binding.getRoot());
+        initial();
         binding.add.setOnClickListener(this::onClick);
         adapter.setCallback(this);
-        setOnDismissListener(this::onDismiss);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(activity);
         binding.recycler.setAdapter(adapter);
         binding.recycler.setHasFixedSize(true);
         binding.recycler.setLayoutManager(layoutManager);
+    }
+
+    void initial() {
+        setContentView(binding.getRoot());
+        setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        setBackgroundDrawable(null);
+        setFocusable(true);
+        setOutsideTouchable(true);
+        setTouchable(true);
+        setAnimationStyle(R.style.popwindow_anim_style);
     }
 
     @Override
@@ -46,10 +55,6 @@ public class PagePopup extends PopupWindow implements TokenAdapter.Callback {
         if (callback != null) {
             callback.showWebFragment(token);
         }
-    }
-
-    public void onDismiss() {
-        adapter.clearCallback();
     }
 
     public void onClick(View v) {

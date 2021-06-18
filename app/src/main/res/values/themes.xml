@@ -26,4 +26,11 @@
     <style name="negativeBtnstyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">#F00</item>
     </style>
+
+    <style name="popwindow_anim_style">
+        <item name="android:windowEnterAnimation">@anim/set_pop_show</item>
+        <!-- 指定显示的动画xml -->
+        <item name="android:windowExitAnimation">@anim/set_pop_hidden</item>
+        <!-- 指定消失的动画xml -->
+    </style>
 </resources>

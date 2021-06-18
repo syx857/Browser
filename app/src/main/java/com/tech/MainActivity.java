@@ -1,7 +1,6 @@
 package com.tech;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -26,6 +26,7 @@ import androidx.preference.PreferenceManager;
 
 import com.tech.databinding.ActivityMainBinding;
 import com.tech.model.WebFragmentToken;
+import com.tech.view.MenuPopup;
 import com.tech.view.PagePopup;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, PagePopup.PagePopupCallback {
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     ActivityMainBinding binding;
     InputMethodManager inputMethodManager;
     PagePopup pagePopup;
+    MenuPopup menuPopup;
+
+    ActivityResultLauncher<Integer> launcher = registerForActivityResult(new MyActivityResultContract(), this::onActivityResult);
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -159,10 +163,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     protected void onDestroy() {
         super.onDestroy();
         viewModel.clearFragmentManager();
-        if (pagePopup != null) {
-            pagePopup.dismiss();
-            pagePopup = null;
-        }
     }
 
     public void onClick(View v) {
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
             doPagePopup();
         }
         if (v == binding.navigationBar.menu) {
-            //TODO popupWindow
+            doMenuPopup();
         }
         if (v == binding.suggestView.suggestSearch.getRoot()) {
             String prefix = PreferenceManager.getDefaultSharedPreferences(this).getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
@@ -198,11 +198,46 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     public void doPagePopup() {
         if (pagePopup == null) {
             pagePopup = new PagePopup(this, this, viewModel.getAdapter());
-            pagePopup.showAsDropDown(binding.appBar.getRoot(), 0, 0, Gravity.TOP);
-            Log.d(TAG, "doPagePopup: show page popup");
-        } else {
+        }
+        if (pagePopup.isShowing()) {
             pagePopup.dismiss();
-            pagePopup = null;
+        } else {
+            int[] location = new int[2];
+            binding.navigationBar.getRoot().getLocationOnScreen(location);
+            pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], binding.navigationBar.getRoot().getHeight());
+        }
+    }
+
+    public void doMenuPopup() {
+        if (menuPopup == null) {
+            menuPopup = new MenuPopup(this, this::menuClick);
+        }
+        if (menuPopup.isShowing()) {
+            menuPopup.dismiss();
+        } else {
+            int[] location = new int[2];
+            binding.navigationBar.getRoot().getLocationOnScreen(location);
+            menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], binding.navigationBar.getRoot().getMeasuredHeight());
+            Log.d(TAG, "doMenuPopup: y = " + binding.navigationBar.getRoot().getMeasuredHeight());
+        }
+    }
+
+    //TODO 弹出menu的响应函数
+    public void menuClick(int id) {
+        if (id == R.id.nav_add_bookmark) {
+            //TODO 添加书签
+        }
+        if (id == R.id.nav_bookmark) {
+            toContainerActivity(R.id.bookmarkFragment);
+        }
+        if (id == R.id.nav_download) {
+            toContainerActivity(R.id.downloadFragment);
+        }
+        if (id == R.id.nav_history) {
+            toContainerActivity(R.id.historyFragment);
+        }
+        if (id == R.id.nav_setting) {
+            toContainerActivity(R.id.settingFragment);
         }
     }
 
@@ -260,9 +295,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
      * @param id 导航id，在/res/navigation/navigation_container.xml注册
      */
     public void toContainerActivity(int id) {
-        Intent intent = new Intent(this, ContainerActivity.class);
-        intent.putExtra("dest", id);
-        startActivity(intent);
+        launcher.launch(id);
     }
 
     @Override
@@ -288,6 +321,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         viewModel.showFragment(token);
         pagePopup.dismiss();
         pagePopup = null;
+    }
+
+    /**
+     * 从ContainerActivity返回的url
+     *
+     * @param result url
+     */
+    public void onActivityResult(String result) {
+        if (result.length() > 0) {
+            viewModel.loadUrl(result);
+        }
     }
 
     @Override
