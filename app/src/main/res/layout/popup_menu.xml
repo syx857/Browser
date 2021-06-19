@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="vertical">
 
@@ -17,7 +17,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:src="@drawable/ic_nav_add_bookmark" />
+            android:src="@drawable/ic_nav_add_bookmark"
+            android:background="@drawable/button_select"
+            android:scaleType="fitCenter"/>
 
         <ImageView
             android:id="@+id/nav_bookmark"
@@ -25,7 +27,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:src="@drawable/ic_nav_bookmark" />
+            android:src="@drawable/ic_nav_bookmark"
+            android:background="@drawable/button_select"
+            android:scaleType="fitCenter"/>
 
         <ImageView
             android:id="@+id/nav_history"
@@ -33,7 +37,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:src="@drawable/ic_nav_history" />
+            android:src="@drawable/ic_nav_history"
+            android:background="@drawable/button_select"
+            android:scaleType="fitCenter"/>
 
         <ImageView
             android:id="@+id/nav_setting"
@@ -41,7 +47,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:src="@drawable/ic_nav_setting" />
+            android:src="@drawable/ic_nav_setting"
+            android:background="@drawable/button_select"
+            android:scaleType="fitCenter"/>
 
         <ImageView
             android:id="@+id/nav_download"
@@ -49,7 +57,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:src="@drawable/ic_nav_download" />
+            android:src="@drawable/ic_nav_download"
+            android:background="@drawable/button_select"
+            android:scaleType="fitCenter"/>
     </LinearLayout>
 
     <LinearLayout

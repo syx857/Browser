@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
@@ -27,18 +29,22 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import com.tech.databinding.ActivityMainBinding;
+import com.tech.domain.Bookmark;
 import com.tech.model.WebFragmentToken;
 import com.tech.view.MenuPopup;
 import com.tech.view.PagePopup;
+import com.tech.viewmodel.BookmarkViewModel;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, PagePopup.PagePopupCallback {
     public static final String TAG = "MainActivity";
 
     MainViewModel viewModel;
+    BookmarkViewModel bookmarkViewModel;
     ActivityMainBinding binding;
     InputMethodManager inputMethodManager;
     PagePopup pagePopup;
     MenuPopup menuPopup;
+    WebFragmentToken webFragmentToken;
 
     ActivityResultLauncher<Integer> launcher = registerForActivityResult(new MyActivityResultContract(), this::onActivityResult);
 
@@ -47,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        bookmarkViewModel =  new ViewModelProvider(this).get(BookmarkViewModel.class);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -136,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
      * @param token 当前页面的Token
      */
     public void setToken(WebFragmentToken token) {
+        webFragmentToken = token;
         if (token != null) {
             binding.appBar.editText.setText(token.url);
         } else {
@@ -236,21 +244,30 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         }
     }
 
-    //TODO 弹出menu的响应函数
     public void menuClick(int id) {
         if (id == R.id.nav_add_bookmark) {
             //TODO 添加书签
+            if(!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils.isEmpty(webFragmentToken.title)) {
+                Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title);
+                bookmarkViewModel.addBookmark(bookmark);
+                menuPopup.dismiss();
+                Toast.makeText(getApplicationContext(), "已添加至书签", Toast.LENGTH_SHORT).show();
+            }
         }
         if (id == R.id.nav_bookmark) {
+            menuPopup.dismiss();
             toContainerActivity(R.id.bookmarkFragment);
         }
         if (id == R.id.nav_download) {
+            menuPopup.dismiss();
             toContainerActivity(R.id.downloadFragment);
         }
         if (id == R.id.nav_history) {
+            menuPopup.dismiss();
             toContainerActivity(R.id.historyFragment);
         }
         if (id == R.id.nav_setting) {
+            menuPopup.dismiss();
             toContainerActivity(R.id.settingFragment);
         }
     }

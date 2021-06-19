@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/edit_bookmark"
+        android:title="编辑" />
+    <item
+        android:id="@+id/copy_bookmark_url"
+        android:title="复制链接" />
+    <item
+        android:id="@+id/multi_choice_bookmark"
+        android:title="多选" />
+    <item
+        android:id="@+id/delete_bookmark"
+        android:title="删除" />
+    <item
+        android:id="@+id/clear_bookmark"
+        android:title="清空" />
+
+</menu>

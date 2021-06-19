@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/ic_bookmark"
+        android:scaleType="fitCenter"
+        android:layout_gravity="center"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="10dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/bookmark_title"
+            android:textColor="@color/black"
+            android:textSize="17dp"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:paddingTop="10dp" />
+        <TextView
+            android:id="@+id/bookmark_url"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:paddingBottom="5dp"
+            android:gravity="bottom" />
+
+    </LinearLayout>
+
+    <com.tech.view.BrowserCheckbox
+        android:id="@+id/bookmark_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:clickable="true"
+        android:visibility="gone" />
+
+</LinearLayout>

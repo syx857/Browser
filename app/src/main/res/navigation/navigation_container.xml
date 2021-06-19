@@ -9,7 +9,15 @@
         android:id="@+id/bookmarkFragment"
         android:name="com.tech.ui.bookmark.BookmarkFragment"
         android:label="BookmarkFragment"
-        tools:layout="@layout/fragment_bookmark" />
+        tools:layout="@layout/fragment_bookmark" >
+        <argument
+            android:name="bookmark"
+            app:argType="com.tech.domain.Bookmark"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_bookmarkFragment_to_bookmarkEditFragment"
+            app:destination="@id/bookmarkEditFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/downloadFragment"
@@ -32,5 +40,15 @@
         android:id="@+id/blankFragment"
         android:name="com.tech.ui.blank.BlankFragment"
         android:label="BlankFragment" />
+
+    <fragment
+        android:id="@+id/bookmarkEditFragment"
+        android:name="com.tech.ui.bookmark.BookmarkEditFragment"
+        android:label="BookmarkEditFragment">
+        <argument
+            android:name="bookmark"
+            app:argType="com.tech.domain.Bookmark"
+            android:defaultValue="@null" />
+    </fragment>
 
 </navigation>
