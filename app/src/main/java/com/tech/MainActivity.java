@@ -209,39 +209,31 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         if (pagePopup == null) {
             pagePopup = new PagePopup(this, this, viewModel.getAdapter());
         }
-        if (pagePopup.isShowing()) {
-            pagePopup.dismiss();
+        int[] location = new int[2];
+        binding.navigationBar.getRoot().getLocationOnScreen(location);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getDisplay().getRealMetrics(displayMetrics);
         } else {
-            int[] location = new int[2];
-            binding.navigationBar.getRoot().getLocationOnScreen(location);
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                getDisplay().getRealMetrics(displayMetrics);
-            } else {
-                getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
-            }
-            pagePopup.setMaxHeight(binding.container.getHeight());
-            pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
+            getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
         }
+        pagePopup.setMaxHeight(binding.container.getHeight());
+        pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
     }
 
     public void doMenuPopup() {
         if (menuPopup == null) {
             menuPopup = new MenuPopup(this, this::menuClick);
         }
-        if (menuPopup.isShowing()) {
-            menuPopup.dismiss();
+        int[] location = new int[2];
+        binding.navigationBar.getRoot().getLocationOnScreen(location);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getDisplay().getRealMetrics(displayMetrics);
         } else {
-            int[] location = new int[2];
-            binding.navigationBar.getRoot().getLocationOnScreen(location);
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                getDisplay().getRealMetrics(displayMetrics);
-            } else {
-                getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
-            }
-            menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
+            getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
         }
+        menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
     }
 
     public void menuClick(int id) {

@@ -59,7 +59,6 @@ public class BookmarkFragment extends Fragment implements AdapterView.OnItemClic
             @Nullable Bundle savedInstanceState) {
 
         binding = FragmentBookmarkBinding.inflate(getLayoutInflater());
-        Log.d("mytest:","create view");
         initToolBar();
 
         viewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
@@ -72,7 +71,6 @@ public class BookmarkFragment extends Fragment implements AdapterView.OnItemClic
                     binding.bookmarkListView.setAdapter(adapter);
                 }
                 adapter.setBookmarkList(bookmarks);
-                Log.d("mytest","set bookmark");
             }
         });
 
