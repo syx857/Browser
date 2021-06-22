@@ -1,5 +1,6 @@
 package com.tech.view;
 
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import android.widget.PopupWindow;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.preference.PreferenceManager;
 import com.tech.R;
 import com.tech.databinding.PopupMenuBinding;
 
@@ -55,6 +57,7 @@ public class MenuPopup extends PopupWindow {
         binding.navDownload.setOnClickListener(this::onClick);
         binding.navHistory.setOnClickListener(this::onClick);
         binding.navSetting.setOnClickListener(this::onClick);
+        binding.navLogin.setOnClickListener(this::onClick);
     }
 
     public interface MenuPopupCallback {

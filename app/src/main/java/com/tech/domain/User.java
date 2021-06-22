@@ -1,13 +1,12 @@
 package com.tech.domain;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
-@Entity
 public class User {
-    @PrimaryKey
-    public String userID;
-    public String nickname;
-    public String phoneNumber;
+
+    public String name;
     public String password;
+
+    public User(String nickname, String password) {
+        this.name = nickname;
+        this.password = password;
+    }
 }

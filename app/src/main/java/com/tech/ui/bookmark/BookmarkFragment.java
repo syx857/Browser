@@ -129,11 +129,6 @@ public class BookmarkFragment extends Fragment implements AdapterView.OnItemClic
                 });
                 break;
             case R.id.edit_bookmark:
-                //Intent intent = new Intent(BookmarkFragment.this, BookmarkEditActivity.class);
-                //intent.putExtra("bookmark", bookmarkList.get(info.position));
-               // Intent intent = new Intent(context, ContainerActivity.class);
-                //intent.putExtra("dest", input);
-                //startActivity(intent);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("bookmark", bookmarkList.get(info.position));
                 navController.navigate(R.id.bookmarkEditFragment, bundle);

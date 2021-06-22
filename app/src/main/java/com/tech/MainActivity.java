@@ -238,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
 
     public void menuClick(int id) {
         if (id == R.id.nav_add_bookmark) {
-            //TODO 添加书签
             if(!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils.isEmpty(webFragmentToken.title)) {
                 Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title);
                 bookmarkViewModel.addBookmark(bookmark);
@@ -261,6 +260,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         if (id == R.id.nav_setting) {
             menuPopup.dismiss();
             toContainerActivity(R.id.settingFragment);
+        }
+        if (id == R.id.nav_login) {
+            menuPopup.dismiss();
+            toContainerActivity(R.id.loginFragment);
         }
     }
 

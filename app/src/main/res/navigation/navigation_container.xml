@@ -51,4 +51,18 @@
             android:defaultValue="@null" />
     </fragment>
 
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.tech.ui.login.LogInFragment"
+        android:label="LogInFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.tech.ui.login.RegisterFragment"
+        android:label="RegisterFragment" />
+
 </navigation>
