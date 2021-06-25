@@ -36,6 +36,28 @@ public class MyWebViewClient extends WebViewClient {
         if (isLoad) {
             addToHistory(view);
         }
+        addImageClickListener(view);
+    }
+
+    /**
+     * 注入js监听图片的点击事件并传图片url给native
+     * @param webView
+     */
+    private void addImageClickListener(WebView webView) {
+        webView.loadUrl("javascript:(function(){" +
+                "var objs = document.getElementsByTagName(\"img\"); " +
+                "var imgURLs=new Array(objs.length); " +
+                "for(var i=0;i<objs.length;i++){" +
+                "    imgURLs[i] = objs[i].src" +
+                "}" +
+                "for(let i=0;i<objs.length;i++)  " +
+                "{"
+                + "    objs[i].onclick= function()  " +
+                "    {  "
+                + "        window.imagelistener.openImage(this.src, imgURLs, i);  " +
+                "    } " +
+                "}" +
+                "})()");
     }
 
     /**

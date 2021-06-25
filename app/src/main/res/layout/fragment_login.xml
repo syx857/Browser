@@ -4,13 +4,13 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/login_name_edit"
+        android:id="@+id/login_phoneNumber_edit"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/login_password_edit"
         android:layout_margin="10dp"
-        android:hint="请输入用户名" />
+        android:hint="请输入手机号" />
     <EditText
         android:id="@+id/login_password_edit"
         android:layout_width="match_parent"
@@ -23,8 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@id/login_password_edit"
-        >
+        android:layout_below="@id/login_password_edit">
         <Button
             android:id="@+id/login"
             android:layout_width="0dp"

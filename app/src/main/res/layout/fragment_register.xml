@@ -11,23 +11,55 @@
         android:layout_above="@id/register_password_edit"
         android:layout_margin="10dp"
         android:hint="请输入用户名" />
+
     <EditText
         android:id="@+id/register_password_edit"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/register_phoneNumber"
         android:hint="请输入密码" />
+
+    <LinearLayout
+        android:id="@+id/register_phoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/register_phoneNumber_edit"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:hint="请输入手机号码" />
+        <Button
+            android:id="@+id/register_send_cord"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:textColor="@color/textColor"
+            android:text="发送验证码" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/register_vcode_edit"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/register_phoneNumber"
+        android:layout_margin="10dp"
+        android:hint="请输入验证码" />
 
     <Button
         android:id="@+id/register"
         android:layout_width="match_parent"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/register_password_edit"
+        android:layout_below="@id/register_vcode_edit"
         android:textColor="@color/textColor"
         android:text="注册" />
 

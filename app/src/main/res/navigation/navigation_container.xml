@@ -65,4 +65,9 @@
         android:name="com.tech.ui.login.RegisterFragment"
         android:label="RegisterFragment" />
 
+    <fragment
+        android:id="@+id/userCenterFragment"
+        android:name="com.tech.ui.login.UserCenterFragment"
+        android:label="UserCenterFragment"/>
+
 </navigation>

@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
-            android:src="@drawable/ic_nav_login"
+            android:src="@drawable/ic_nav_user_center"
             android:background="@drawable/button_select"
             android:scaleType="fitCenter"/>
 

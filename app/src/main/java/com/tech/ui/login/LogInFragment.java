@@ -46,18 +46,20 @@ public class LogInFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()) {
+        switch (v.getId()) {
             case R.id.login:
-                User user = new User(binding.loginNameEdit.getText().toString(),
+                User user = new User(binding.loginPasswordEdit.getText().toString(),
                         binding.loginPasswordEdit.getText().toString());
                 userApi.confirmLogin(user).enqueue(new Callback<ResponseBody>() {
                     @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    public void onResponse(Call<ResponseBody> call,
+                            Response<ResponseBody> response) {
 
                         if (response.body().result) {
                             Toast.makeText(v.getContext(), "登录成功", Toast.LENGTH_SHORT).show();
+
                         } else {
-                            Toast.makeText(v.getContext(), "用户名或密码不正确", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(v.getContext(), "手机号或密码不正确", Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -71,7 +73,6 @@ public class LogInFragment extends Fragment implements View.OnClickListener {
                 navController.navigate(R.id.registerFragment);
                 break;
         }
-
 
 
     }

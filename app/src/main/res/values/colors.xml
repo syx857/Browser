@@ -10,4 +10,5 @@
     <color name="textColor">#202125</color>
     <color name="urlColor">#2372DB</color>
     <color name="lightGray">#DCDCDC</color>
+    <color name="gray">#FF666666</color>
 </resources>
