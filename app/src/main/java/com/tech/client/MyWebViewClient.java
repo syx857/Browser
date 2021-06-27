@@ -54,7 +54,7 @@ public class MyWebViewClient extends WebViewClient {
                 "{"
                 + "    objs[i].onclick= function()  " +
                 "    {  "
-                + "        window.imagelistener.openImage(this.src, imgURLs, i);  " +
+                + "        window._TECH_BROWSER_.openImage(this.src, imgURLs, i);  " +
                 "    } " +
                 "}" +
                 "})()");
@@ -69,7 +69,8 @@ public class MyWebViewClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         isLoad = false;
         if (callback != null) {
-            return callback.shouldOverrideUrlLoading(view, request) && super.shouldOverrideUrlLoading(view, request);
+            //Log.d("mytest",callback.shouldOverrideUrlLoading(view, request)+"");
+            return callback.shouldOverrideUrlLoading(view, request) || super.shouldOverrideUrlLoading(view, request);
         }
         return super.shouldOverrideUrlLoading(view, request);
     }

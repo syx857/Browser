@@ -26,6 +26,9 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -34,7 +37,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 import com.tech.MainViewModel;
+import com.tech.adapter.ViewPagerAdapter;
 import com.tech.client.MyWebChromeClient;
 import com.tech.client.MyWebViewClient;
 import com.tech.databinding.FragmentWebBinding;
@@ -43,9 +49,11 @@ import com.tech.utils.Const;
 import com.tech.utils.WebViewUtils;
 
 public class WebFragment extends Fragment implements MyWebViewClient.Callback, MyWebChromeClient.Callback {
+
     public static final String TAG = "WebFragment";
     public static final String HOME = "file:///android_asset/home.html";
     public static final int SEARCH = 0x33;
+    public static final int SHOW = 1;
 
     /**
      * for full screen
@@ -68,6 +76,40 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
             String prefix = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
             loadUrl(prefix + Uri.encode(s));
             return true;
+        } else if (msg.what == SHOW) {
+            String[] imageUrls = (String [])msg.obj;
+            int curPosition = msg.arg1;
+
+            binding.showWebPhoto.setVisibility(View.VISIBLE);
+
+            ViewPager2 viewPager = binding.viewPager;
+            ViewPagerAdapter adapter = new ViewPagerAdapter(getContext(), imageUrls, curPosition);
+            viewPager.setAdapter(adapter);
+            viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+            viewPager.setCurrentItem(curPosition, false);
+
+            TextView imageCount;
+            imageCount = binding.imageCount;
+            imageCount.setText((curPosition + 1) + "/" + imageUrls.length);
+
+            viewPager.registerOnPageChangeCallback(new OnPageChangeCallback() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset,
+                        int positionOffsetPixels) {
+                    super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    imageCount.setText((position + 1) + "/" + imageUrls.length);
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    super.onPageScrollStateChanged(state);
+                }
+            });
         }
         return false;
     });
@@ -165,6 +207,15 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         Message msg = Message.obtain();
         msg.what = SEARCH;
         msg.obj = text;
+        handler.sendMessage(msg);
+    }
+
+    @JavascriptInterface
+    public void openImage(String img, String[] imageUrls, int position) {
+        Message msg = Message.obtain();
+        msg.what = SHOW;
+        msg.obj = imageUrls;
+        msg.arg1 = position;
         handler.sendMessage(msg);
     }
 
@@ -391,6 +442,10 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     }
 
     public boolean goBackward() {
+        if (binding.showWebPhoto.getVisibility() == View.VISIBLE) {
+            binding.showWebPhoto.setVisibility(View.GONE);
+            return true;
+        }
         if (binding.webView.canGoBack()) {
             Log.d(TAG, "goBackward: canGoBack");
             binding.webView.goBack();
