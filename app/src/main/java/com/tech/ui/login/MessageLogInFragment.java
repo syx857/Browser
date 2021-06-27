@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,25 +25,24 @@ import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import com.tech.R;
 import com.tech.api.UserApi;
-import com.tech.databinding.FragmentRegisterBinding;
+import com.tech.databinding.FragmentMessageLoginBinding;
 import com.tech.domain.User;
-import com.tech.web.ResponseBody;
 import com.tech.web.RetrofitFactory;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RegisterFragment extends Fragment implements View.OnClickListener {
+public class MessageLogInFragment extends Fragment implements View.OnClickListener {
 
-    FragmentRegisterBinding binding;
+    FragmentMessageLoginBinding binding;
     UserApi userApi;
+    NavController navController;
+    SharedPreferences sharedPreferences;
+    boolean isVerified = false;
+    MyHandler handler = new MyHandler();
+    private String cord;
     EventHandler eventHandler;
     String phoneNumber;
-    private String vcode;
-    MyHandler handler = new MyHandler();
-    NavController navController;
-    boolean isVerified = false;
-    SharedPreferences sharedPreferences;
 
     class MyHandler extends Handler {
 
@@ -75,17 +76,20 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        binding = FragmentRegisterBinding.inflate(getLayoutInflater());
+        binding = FragmentMessageLoginBinding.inflate(getLayoutInflater());
         userApi = RetrofitFactory.getInstance().create(UserApi.class);
-        binding.register.setOnClickListener(this::onClick);
-        binding.registerSendCord.setOnClickListener(this::onClick);
-        isVerified = false;
+
+        binding.login.setOnClickListener(this::onClick);
+        binding.navToRegister.setOnClickListener(this::onClick);
+        binding.loginSendCord.setOnClickListener(this::onClick);
+
         initToolBar();
+        setHasOptionsMenu(true);
+        isVerified = false;
 
         eventHandler = new EventHandler() {
             public void afterEvent(int event, int result, Object data) {
@@ -96,9 +100,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 handler.sendMessage(msg);
             }
         };
-        sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
         SMSSDK.registerEventHandler(eventHandler);
-
+        sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
         return binding.getRoot();
     }
 
@@ -109,10 +112,18 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        requireActivity().getMenuInflater().inflate(R.menu.menu_password_login, menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 requireActivity().onBackPressed();
+                return true;
+            case R.id.password_confirm:
+                navController.navigate(R.id.passwordLoginFragment);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -121,50 +132,49 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.register:
-                if (confirmVcode()) {
-                    SMSSDK.submitVerificationCode("86", phoneNumber, vcode);
+            case R.id.login_send_cord:
+                if (confirmPhoneNumber()) {
+                    SMSSDK.getVerificationCode("86", phoneNumber);
                 }
-                if (!confirm() || !isVerified) {
+                break;
+            case R.id.login:
+                if (confirmVcode()) {
+                    SMSSDK.submitVerificationCode("86", phoneNumber, cord);
+                }
+                if (!isVerified) {
                     break;
                 }
-                User user = new User(binding.registerNameEdit.getText().toString(),
-                        binding.registerPasswordEdit.getText().toString(), phoneNumber);
-                UserApi apiService = RetrofitFactory.getInstance().create(UserApi.class);
-                apiService.register(user).enqueue(new Callback<ResponseBody>() {
+                User user = new User(binding.loginPhoneNumberEdit.getText().toString());
+                userApi.getUser(user).enqueue(new Callback<User>() {
                     @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        if (response.body().result) {
-                            Toast.makeText(v.getContext(), "注册成功！", Toast.LENGTH_SHORT).show();
+                    public void onResponse(Call<User> call, Response<User> response) {
+
+                        if (response.body() != null) {
+                            Toast.makeText(v.getContext(), "登录成功", Toast.LENGTH_SHORT).show();
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putBoolean("login_state", true);
                             editor.putString("phoneNumber", phoneNumber);
                             editor.apply();
                             requireActivity().onBackPressed();
                         } else {
-                            Toast.makeText(v.getContext(), "该手机号已注册", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(v.getContext(), "手机号或密码不正确", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    public void onFailure(Call<User> call, Throwable t) {
 
                     }
                 });
-                isVerified = false;
                 break;
-            case R.id.register_send_cord:
-                if (confirmPhoneNumber()) {
-                    SMSSDK.getVerificationCode("86", phoneNumber);
-                    //binding.registerPhoneNumberEdit.requestFocus();
-                }
+            case R.id.nav_to_register:
+                navController.navigate(R.id.registerFragment);
                 break;
         }
-
     }
 
     private boolean confirmPhoneNumber() {
-        EditText numberEdit = binding.registerPhoneNumberEdit;
+        EditText numberEdit = binding.loginPhoneNumberEdit;
         String number = numberEdit.getText().toString().trim();
         if (TextUtils.isEmpty(number)) {
             Toast.makeText(getContext(), "请输入手机号码", Toast.LENGTH_LONG).show();
@@ -187,7 +197,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     }
 
     private boolean confirmVcode() {
-        EditText vcodeEdit = binding.registerVcodeEdit;
+        EditText vcodeEdit = binding.loginCordEdit;
         String code = vcodeEdit.getText().toString().trim();
 
         if (TextUtils.isEmpty(code)) {
@@ -199,20 +209,9 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
             vcodeEdit.requestFocus();
             return false;
         } else {
-            vcode = code;
+            cord = code;
             return true;
         }
-    }
-
-    private boolean confirm() {
-        if (TextUtils.isEmpty(binding.registerNameEdit.getText())) {
-            Toast.makeText(getContext(), "请输入昵称", Toast.LENGTH_SHORT).show();
-            return false;
-        } else if (TextUtils.isEmpty(binding.registerPasswordEdit.getText())) {
-            Toast.makeText(getContext(), "请输入密码", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -221,11 +220,12 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         SMSSDK.unregisterEventHandler(eventHandler);
     }
 
+
     private void initToolBar() {
-        Toolbar toolbar = binding.registerToolbar;
+        Toolbar toolbar = binding.loginToolbar;
         AppCompatActivity activity = (AppCompatActivity) requireActivity();
         activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        activity.getSupportActionBar().setTitle("注册");
+        activity.getSupportActionBar().setTitle("登录");
     }
 }

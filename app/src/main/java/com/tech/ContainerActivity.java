@@ -45,7 +45,7 @@ public class ContainerActivity extends AppCompatActivity {
             controller.navigate(id);
             return;
         }
-        if (id == R.id.loginFragment) {
+        if (id == R.id.passwordLoginFragment) {
             controller.navigate(id);
             return;
         }

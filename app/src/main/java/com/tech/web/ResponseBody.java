@@ -1,4 +1,4 @@
-package com.tech.api;
+package com.tech.web;
 
 public class ResponseBody {
 

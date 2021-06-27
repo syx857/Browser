@@ -16,4 +16,8 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
-}
+
+    public User(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+ }

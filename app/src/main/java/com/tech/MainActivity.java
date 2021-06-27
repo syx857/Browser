@@ -1,6 +1,7 @@
 package com.tech;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,6 +24,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     PagePopup pagePopup;
     MenuPopup menuPopup;
     WebFragmentToken webFragmentToken;
+    SharedPreferences sharedPreferences;
 
     ActivityResultLauncher<Integer> launcher = registerForActivityResult(new MyActivityResultContract(), this::onActivityResult);
 
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         binding.appBar.editText.addTextChangedListener(this);
         binding.appBar.editText.setOnFocusChangeListener(this::onFocusChange);
         binding.getRoot().setOnTouchListener(this::onTouch);
+        sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
     }
 
     /**
@@ -263,7 +267,25 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         }
         if (id == R.id.nav_login) {
             menuPopup.dismiss();
-            toContainerActivity(R.id.loginFragment);
+            if (sharedPreferences.getBoolean("login_state", false)) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("提示").setMessage("您已经登录，是否退出登录？");
+                builder.setPositiveButton("确定", (dialog, which) -> {
+                    SharedPreferences.Editor editor =  sharedPreferences.edit();
+                    editor.putBoolean("login_state",false);
+                    editor.putString("phoneNumber", null);
+                    editor.apply();
+                    dialog.dismiss();
+                });
+                builder.setNegativeButton("取消", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+                builder.setCancelable(true);
+                //builder.setOnCancelListener(dialog -> result.cancel());
+                builder.create().show();
+            } else {
+                toContainerActivity(R.id.passwordLoginFragment);
+            }
         }
     }
 

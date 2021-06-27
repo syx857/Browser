@@ -52,11 +52,20 @@
     </fragment>
 
     <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.tech.ui.login.LogInFragment"
+        android:id="@+id/passwordLoginFragment"
+        android:name="com.tech.ui.login.PasswordLogInFragment"
         android:label="LogInFragment" >
         <action
-            android:id="@+id/action_loginFragment_to_registerFragment"
+            android:id="@+id/action_passwordLoginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <fragment
+    android:id="@+id/messageLoginFragment"
+    android:name="com.tech.ui.login.MessageLogInFragment"
+    android:label="LogInFragment" >
+        <action
+            android:id="@+id/action_messageLoginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
     </fragment>
 

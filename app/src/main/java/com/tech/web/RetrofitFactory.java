@@ -1,4 +1,4 @@
-package com.tech.api;
+package com.tech.web;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
