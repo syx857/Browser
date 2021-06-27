@@ -6,4 +6,8 @@ public class HistoryArray {
 
     public List<History> result;
 
+    public HistoryArray(List<History> histories) {
+        this.result = histories;
+    }
+
 }

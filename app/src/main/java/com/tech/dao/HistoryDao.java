@@ -13,7 +13,7 @@ import java.util.List;
 public abstract class HistoryDao {
 
     @Insert
-    public abstract void addHistory(History history);
+    public abstract void addHistory(History... history);
 
     @Delete
     public abstract void deleteHistory(History... history);

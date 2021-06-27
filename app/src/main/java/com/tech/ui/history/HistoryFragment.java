@@ -1,11 +1,13 @@
 package com.tech.ui.history;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.ContextMenu;
@@ -34,6 +36,7 @@ import com.tech.R;
 import com.tech.adapter.HistoryAdapter;
 import com.tech.databinding.FragmentHistoryBinding;
 import com.tech.domain.History;
+import com.tech.domain.User;
 import com.tech.viewmodel.HistoryViewModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,7 @@ public class HistoryFragment extends Fragment implements AdapterView.OnItemClick
     Boolean multiChoice = false;
     List<History> checkedHistory = new ArrayList<>();
     boolean isSearching = false;
+    SharedPreferences sharedPreferences;
 
     @Nullable
     @Override
@@ -57,7 +61,16 @@ public class HistoryFragment extends Fragment implements AdapterView.OnItemClick
 
         binding = FragmentHistoryBinding.inflate(getLayoutInflater());
         initToolBar();
+        sharedPreferences = requireActivity().getSharedPreferences("user", MODE_PRIVATE);
+
         viewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
+        if (!sharedPreferences.getBoolean("loadHistory", false)) {
+            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+            viewModel.loadHistoryListFromRemote(user);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("loadHistory", true);
+            editor.apply();
+        }
 
         viewModel.getHistoryList().observe(getViewLifecycleOwner(), histories -> {
             if(!isSearching) {

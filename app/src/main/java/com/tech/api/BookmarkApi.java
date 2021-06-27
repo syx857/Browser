@@ -15,4 +15,7 @@ public interface BookmarkApi {
 
     @POST("addBookmark")
     Call<ResponseBody> addBookmark(@Body Bookmark bookmark);
+
+    @POST("deleteBookmark")
+    Call<ResponseBody> deleteBookmark(@Body BookmarkArray bookmark);
 }

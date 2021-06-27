@@ -1,5 +1,6 @@
 package com.tech.client;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.webkit.WebHistoryItem;
@@ -10,6 +11,7 @@ import com.tech.domain.History;
 import com.tech.repository.HistoryRepository;
 
 public class MyWebViewClient extends WebViewClient {
+
     public static final String TAG = "MyWebViewClient";
     Callback callback;
     boolean isLoad;
@@ -81,16 +83,19 @@ public class MyWebViewClient extends WebViewClient {
         void onPageFinished(String url);
 
         boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request);
+
+        void addToHistory(String title, String url, long time);
     }
 
     public void addToHistory(WebView view) {
-        HistoryRepository historyRepository = new HistoryRepository(view.getContext());
         WebHistoryItem historyItem = view.copyBackForwardList().getCurrentItem();
         if(historyItem.getUrl().equals("file:///android_asset/home.html")) {
             return;
         }
-        History history = new History(historyItem.getTitle(), historyItem.getUrl(),
-                System.currentTimeMillis());
-        historyRepository.addHistory(history);
+
+        if (callback != null) {
+            callback.addToHistory(historyItem.getTitle(), historyItem.getUrl(),
+                    System.currentTimeMillis());
+        }
     }
 }

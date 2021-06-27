@@ -1,6 +1,8 @@
 package com.tech.ui.web;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -44,9 +46,11 @@ import com.tech.adapter.ViewPagerAdapter;
 import com.tech.client.MyWebChromeClient;
 import com.tech.client.MyWebViewClient;
 import com.tech.databinding.FragmentWebBinding;
+import com.tech.domain.History;
 import com.tech.model.WebFragmentToken;
 import com.tech.utils.Const;
 import com.tech.utils.WebViewUtils;
+import com.tech.viewmodel.HistoryViewModel;
 
 public class WebFragment extends Fragment implements MyWebViewClient.Callback, MyWebChromeClient.Callback {
 
@@ -66,9 +70,11 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
      * for full screen
      */
 
+    SharedPreferences sharedPreferences;
     FragmentWebBinding binding;
     WebViewModel webViewModel;
     MainViewModel mainViewModel;
+    HistoryViewModel historyViewModel;
     WebFragmentToken token;
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
@@ -119,8 +125,9 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         webViewModel = new ViewModelProvider(this).get(WebViewModel.class);
+        historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
         binding = FragmentWebBinding.inflate(inflater, container, false);
-
+        sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
         WebViewUtils.initialWebView(binding.webView);
         binding.webView.setWebViewClient(new MyWebViewClient(this));
         binding.webView.setWebChromeClient(new MyWebChromeClient(this));
@@ -413,6 +420,12 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         String scheme = request.getUrl().getScheme();
         return !scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https");
 
+    }
+
+    @Override
+    public void addToHistory(String title, String url, long time) {
+        History history = new History(title, url, time, sharedPreferences.getString("phoneNumber", ""));
+        historyViewModel.addHistory(history);
     }
 
     public void setTitle(String title) {

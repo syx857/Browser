@@ -6,4 +6,8 @@ public class BookmarkArray {
 
     public List<Bookmark> result;
 
+    public BookmarkArray(List<Bookmark> bookmarks) {
+        this.result = bookmarks;
+    }
+
 }

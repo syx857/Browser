@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import com.tech.domain.History;
+import com.tech.domain.User;
 import com.tech.repository.HistoryRepository;
 import java.util.List;
 
@@ -39,5 +40,9 @@ public class HistoryViewModel extends AndroidViewModel {
 
     public void deleteAll() {
         historyRepository.deleteAll();
+    }
+
+    public void loadHistoryListFromRemote(User user) {
+        historyRepository.loadHistoryListFromRemote(user);
     }
 }

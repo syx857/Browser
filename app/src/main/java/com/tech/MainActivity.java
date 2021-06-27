@@ -313,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         editor.putBoolean("login_state",false);
         editor.putString("phoneNumber", null);
         editor.putBoolean("loadBookmark", false);
+        editor.putBoolean("loadHistory", false);
         editor.apply();
         bookmarkViewModel.deleteAll();
         historyViewModel.deleteAll();

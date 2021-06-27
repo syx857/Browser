@@ -15,4 +15,7 @@ public interface HistoryApi {
 
     @POST("addHistory")
     Call<ResponseBody> addHistory(@Body History history);
+
+    @POST("deleteHistory")
+    Call<ResponseBody> deleteHistory(@Body HistoryArray history);
 }
