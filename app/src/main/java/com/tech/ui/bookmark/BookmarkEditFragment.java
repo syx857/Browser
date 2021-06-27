@@ -1,6 +1,8 @@
 package com.tech.ui.bookmark;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,6 +32,7 @@ public class BookmarkEditFragment extends Fragment implements ContainerActivity.
     BookmarkViewModel bookmarkViewModel;
     ActivityResultLauncher<Integer> launcher;
     NavController navController;
+    SharedPreferences sharedPreferences;
 
     @Nullable
     @Override
@@ -38,6 +41,7 @@ public class BookmarkEditFragment extends Fragment implements ContainerActivity.
         binding = FragmentBookmarkEditBinding.inflate(getLayoutInflater());
 
         initToolBar();
+        sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
 
         bookmark = (Bookmark)getArguments().getSerializable("bookmark");
         if (bookmark != null) {
@@ -67,9 +71,11 @@ public class BookmarkEditFragment extends Fragment implements ContainerActivity.
                 navController.navigate(R.id.bookmarkFragment);
                 return true;
             case R.id.complete_edit:
+                Bookmark newBookmark;
                 String newUrl = binding.editBookmarkUrl.getText().toString();
                 String newTitle = binding.editBookmarkTitle.getText().toString();
-                bookmarkViewModel.update(bookmark.id, newUrl, newTitle);
+                newBookmark = new Bookmark(newUrl, newTitle, sharedPreferences.getString("phoneNumber", ""));
+                bookmarkViewModel.update(bookmark, newBookmark);
                 navController.navigate(R.id.bookmarkFragment);
                 return true;
         }

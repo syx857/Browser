@@ -157,7 +157,7 @@ public class MessageLogInFragment extends Fragment implements View.OnClickListen
                             editor.apply();
                             requireActivity().onBackPressed();
                         } else {
-                            //Toast.makeText(v.getContext(), "手机号或密码不正确", Toast.LENGTH_SHORT).show();
+
                         }
                     }
 

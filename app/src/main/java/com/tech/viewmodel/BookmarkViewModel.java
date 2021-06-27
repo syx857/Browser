@@ -4,7 +4,9 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import com.tech.api.BookmarkApi;
 import com.tech.domain.Bookmark;
+import com.tech.domain.User;
 import com.tech.repository.BookmarkRepository;
 import java.util.List;
 
@@ -24,6 +26,10 @@ public class BookmarkViewModel extends AndroidViewModel {
         return bookmarkRepository.getBookmarkList();
     }
 
+    public void loadBookmarkListFromRemote(User user) {
+        bookmarkRepository.loadBookmarkListFromRemote(user);
+    }
+
     public void deleteBookmark(Bookmark... bookmark) {
         bookmarkRepository.deleteBookmark(bookmark);
     }
@@ -36,7 +42,7 @@ public class BookmarkViewModel extends AndroidViewModel {
         bookmarkRepository.addBookmark(bookmark);
     }
 
-    public void update(int id, String url, String title) {
-        bookmarkRepository.update(id, url, title);
+    public void update(Bookmark bookmark, Bookmark newBookmark) {
+        bookmarkRepository.update(bookmark, newBookmark);
     }
 }

@@ -1,11 +1,13 @@
 package com.tech.ui.bookmark;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -36,6 +38,7 @@ import com.tech.R;
 import com.tech.adapter.BookmarkAdapter;
 import com.tech.databinding.FragmentBookmarkBinding;
 import com.tech.domain.Bookmark;
+import com.tech.domain.User;
 import com.tech.viewmodel.BookmarkViewModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +55,7 @@ public class BookmarkFragment extends Fragment implements AdapterView.OnItemClic
     List<Bookmark> checkedBookmark = new ArrayList<>();
     boolean isSearching = false;
     NavController navController;
+    SharedPreferences sharedPreferences;
 
     @Nullable
     @Override
@@ -60,11 +64,18 @@ public class BookmarkFragment extends Fragment implements AdapterView.OnItemClic
 
         binding = FragmentBookmarkBinding.inflate(getLayoutInflater());
         initToolBar();
+        sharedPreferences = requireActivity().getSharedPreferences("user", MODE_PRIVATE);
 
         viewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
-
+        if (!sharedPreferences.getBoolean("loadBookmark", false)) {
+            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+            viewModel.loadBookmarkListFromRemote(user);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("loadBookmark", true);
+            editor.apply();
+        }
         viewModel.getBookmarkList().observe(getViewLifecycleOwner(), bookmarks -> {
-            if(!isSearching) {
+            if (!isSearching) {
                 bookmarkList = bookmarks;
                 if (adapter == null) {
                     adapter = new BookmarkAdapter(getContext(), R.layout.bookmark_item, bookmarks);

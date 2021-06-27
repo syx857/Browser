@@ -25,6 +25,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -36,6 +37,7 @@ import com.tech.model.WebFragmentToken;
 import com.tech.view.MenuPopup;
 import com.tech.view.PagePopup;
 import com.tech.viewmodel.BookmarkViewModel;
+import com.tech.viewmodel.HistoryViewModel;
 
 public class MainActivity extends AppCompatActivity implements TextWatcher, PagePopup.PagePopupCallback {
     public static final String TAG = "MainActivity";
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     MenuPopup menuPopup;
     WebFragmentToken webFragmentToken;
     SharedPreferences sharedPreferences;
+    HistoryViewModel historyViewModel;
 
     ActivityResultLauncher<Integer> launcher = registerForActivityResult(new MyActivityResultContract(), this::onActivityResult);
 
@@ -56,7 +59,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        bookmarkViewModel =  new ViewModelProvider(this).get(BookmarkViewModel.class);
+        bookmarkViewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
+        historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -243,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     public void menuClick(int id) {
         if (id == R.id.nav_add_bookmark) {
             if(!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils.isEmpty(webFragmentToken.title)) {
-                Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title);
+                Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title, sharedPreferences.getString("phoneNumber", ""));
                 bookmarkViewModel.addBookmark(bookmark);
                 menuPopup.dismiss();
                 Toast.makeText(getApplicationContext(), "已添加至书签", Toast.LENGTH_SHORT).show();
@@ -251,7 +255,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         }
         if (id == R.id.nav_bookmark) {
             menuPopup.dismiss();
-            toContainerActivity(R.id.bookmarkFragment);
+            if (sharedPreferences.getBoolean("login_state", false)) {
+                toContainerActivity(R.id.bookmarkFragment);
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("提示")
+                        .setMessage("请登陆后查看书签")
+                        .setCancelable(true)
+                        .create()
+                        .show();
+            }
         }
         if (id == R.id.nav_download) {
             menuPopup.dismiss();
@@ -259,7 +272,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         }
         if (id == R.id.nav_history) {
             menuPopup.dismiss();
-            toContainerActivity(R.id.historyFragment);
+            if (sharedPreferences.getBoolean("login_state", false)) {
+                toContainerActivity(R.id.historyFragment);
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("提示")
+                        .setMessage("请登陆后查看历史记录")
+                        .setCancelable(true)
+                        .create()
+                        .show();
+            }
+
         }
         if (id == R.id.nav_setting) {
             menuPopup.dismiss();
@@ -271,22 +294,28 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("提示").setMessage("您已经登录，是否退出登录？");
                 builder.setPositiveButton("确定", (dialog, which) -> {
-                    SharedPreferences.Editor editor =  sharedPreferences.edit();
-                    editor.putBoolean("login_state",false);
-                    editor.putString("phoneNumber", null);
-                    editor.apply();
+                    exitLogin();
                     dialog.dismiss();
                 });
                 builder.setNegativeButton("取消", (dialog, which) -> {
                     dialog.dismiss();
                 });
                 builder.setCancelable(true);
-                //builder.setOnCancelListener(dialog -> result.cancel());
                 builder.create().show();
             } else {
                 toContainerActivity(R.id.passwordLoginFragment);
             }
         }
+    }
+
+    public void exitLogin() {
+        SharedPreferences.Editor editor =  sharedPreferences.edit();
+        editor.putBoolean("login_state",false);
+        editor.putString("phoneNumber", null);
+        editor.putBoolean("loadBookmark", false);
+        editor.apply();
+        bookmarkViewModel.deleteAll();
+        historyViewModel.deleteAll();
     }
 
     @Override

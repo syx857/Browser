@@ -88,7 +88,7 @@ public class PasswordLogInFragment extends Fragment implements View.OnClickListe
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putBoolean("login_state", true);
                             editor.putString("phoneNumber",
-                                    binding.loginPasswordEdit.getText().toString());
+                                    binding.loginPhoneNumberEdit.getText().toString());
                             editor.apply();
                             requireActivity().onBackPressed();
                         } else {
