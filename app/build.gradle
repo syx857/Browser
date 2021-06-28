@@ -89,6 +89,10 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
     implementation 'com.bm.photoview:library:1.4.1'
+
+    implementation("com.squareup.okhttp3:okhttp:4.6.0")
+    implementation("com.squareup.okio:okio:1.11.0")
+
 }
 
 apply plugin: 'com.mob.sdk'

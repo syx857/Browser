@@ -1,6 +1,8 @@
 package com.tech.ui.web;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -8,12 +10,16 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileUtils;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -31,8 +37,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -40,10 +44,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 import com.bumptech.glide.Glide;
@@ -59,14 +63,25 @@ import com.tech.model.WebFragmentToken;
 import com.tech.utils.Const;
 import com.tech.utils.WebViewUtils;
 import com.tech.viewmodel.HistoryViewModel;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
+import java.util.UUID;
 
-public class WebFragment extends Fragment implements MyWebViewClient.Callback, MyWebChromeClient.Callback {
+public class WebFragment extends Fragment implements MyWebViewClient.Callback,
+        MyWebChromeClient.Callback {
 
     public static final String TAG = "WebFragment";
     public static final String HOME = "file:///android_asset/home.html";
     public static final int SEARCH = 0x33;
     public static final int SHOW = 1;
-
+    public static final int MY_PERMISSIONS_REQUEST_SAVE_PICTURE = 2;
     /**
      * for full screen
      */
@@ -88,12 +103,14 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
             String s = (String) msg.obj;
-            String prefix = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
+            String prefix = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                    .getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
             loadUrl(prefix + Uri.encode(s));
             return true;
         } else if (msg.what == SHOW) {
-            String[] imageUrls = (String [])msg.obj;
+            String[] imageUrls = (String[]) msg.obj;
             int curPosition = msg.arg1;
+            imageUrl = imageUrls[curPosition];
 
             binding.showWebPhoto.setVisibility(View.VISIBLE);
             binding.downloadImage.setOnClickListener(this::onClick);
@@ -131,53 +148,10 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         return false;
     });
 
-    private void onClick(View view) {
-        if (view == binding.downloadImage) {
-            saveToLocal(imageUrl);
-        } else if (view == binding.editPhoto) {
-
-        }
-    }
-
-    public void saveToLocal(String url) {
-        Glide.with(this)
-                .load(url)
-                .into(new CustomTarget<Drawable>() {
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource,
-                            @Nullable Transition<? super Drawable> transition) {
-                        Bitmap bitmap = ((BitmapDrawable)resource).getBitmap();
-                        //saveImage(bitmap, dir, fileName);
-
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
-    }
-
-
-    public Boolean verifyPermissions() {
-
-        // This will return the current Status
-        int permissionExternalMemory = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionExternalMemory != PackageManager.PERMISSION_GRANTED) {
-
-            String[] STORAGE_PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            // If permission not granted then ask for permission real time.
-            ActivityCompat.requestPermissions(requireActivity(), STORAGE_PERMISSIONS, 1);
-            return false;
-        }
-        return true;
-    }
-
-
-
-        @Nullable
+    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         webViewModel = new ViewModelProvider(this).get(WebViewModel.class);
         historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
@@ -192,14 +166,137 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         load();
         initial();
         Log.d(TAG, "onCreateView: get dependency token: " + token);
+        binding.downloadImage.setOnClickListener(this::onClick);
+        binding.editPhoto.setOnClickListener(this::onClick);
         return binding.getRoot();
+    }
+
+    private void onClick(View view) {
+        if (view == binding.downloadImage) {
+            saveToLocal(imageUrl);
+        } else if (view == binding.editPhoto) {
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_SAVE_PICTURE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    Toast.makeText(getContext(), "没有获得权限，无法保存图片", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+        }
+    }
+
+    public void saveToLocal(String url) {
+        Glide.with(getContext())
+                .load(url)
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource,
+                            @Nullable Transition<? super Drawable> transition) {
+                        Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
+                        if (verifyPermissions()) {
+                            saveImage(bitmap);
+                        }
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+    }
+
+
+    public boolean verifyPermissions() {
+        int permissionExternalMemory = ContextCompat
+                .checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionExternalMemory != PackageManager.PERMISSION_GRANTED) {
+            String[] STORAGE_PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            ActivityCompat.requestPermissions(requireActivity(), STORAGE_PERMISSIONS,
+                    MY_PERMISSIONS_REQUEST_SAVE_PICTURE);
+            return false;
+        }
+        return true;
+    }
+
+    private static String generateFileName() {
+        return UUID.randomUUID().toString();
+    }
+
+    private void saveImage(Bitmap bitmap) {
+        File file = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                generateFileName() + ".jpg");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        OutputStream outputStream;
+        try {
+            outputStream = new BufferedOutputStream(new FileOutputStream(file));
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            if (!bitmap.isRecycled()) {
+                bitmap.recycle();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.getName());
+            values.put(MediaStore.MediaColumns.MIME_TYPE, getMimeType(file));
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM);
+            ContentResolver contentResolver = requireActivity().getContentResolver();
+            Uri uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri == null) {
+                Toast.makeText(getContext(), "图片保存失败", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            try {
+                outputStream = contentResolver.openOutputStream(uri);
+                FileInputStream fileInputStream = new FileInputStream(file);
+                FileUtils.copy(fileInputStream, outputStream);
+                fileInputStream.close();
+                outputStream.close();
+                Toast.makeText(getContext(), "图片保存成功", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            MediaScannerConnection.scanFile(
+                    requireActivity().getApplicationContext(),
+                    new String[]{file.getAbsolutePath()},
+                    new String[]{"image/jpeg"},
+                    (path, uri) -> {
+                        // Scan Completed
+                    });
+        }
+    }
+
+    public static String getMimeType(File file) {
+        FileNameMap fileNameMap = URLConnection.getFileNameMap();
+        String type = fileNameMap.getContentTypeFor(file.getName());
+        return type;
     }
 
     /**
      * WebView 长按菜单
      */
     @Override
-    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v,
+            @Nullable ContextMenu.ContextMenuInfo menuInfo) {
         if (v == binding.webView) {
             WebView.HitTestResult hitTestResult = binding.webView.getHitTestResult();
             String str = hitTestResult.getExtra();
@@ -237,8 +334,11 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
-    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-        Log.d(TAG, "onDownloadStart: url: " + url + " userAgent: " + userAgent + " contentDisposition: " + " mimetype: " + mimetype + contentDisposition + " contentLength: " + contentLength);
+    public void onDownloadStart(String url, String userAgent, String contentDisposition,
+            String mimetype, long contentLength) {
+        Log.d(TAG, "onDownloadStart: url: " + url + " userAgent: " + userAgent
+                + " contentDisposition: " + " mimetype: " + mimetype + contentDisposition
+                + " contentLength: " + contentLength);
     }
 
     void load() {
@@ -339,13 +439,16 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         orientation = requireActivity().getRequestedOrientation();
         visibility = requireActivity().getWindow().getDecorView().getSystemUiVisibility();
         ((FrameLayout) requireActivity().getWindow().getDecorView()).addView(view,
-                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        requireActivity().getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-            @Override
-            public void onSystemUiVisibilityChange(int visibility) {
-                requireActivity().getWindow().getDecorView().setSystemUiVisibility(Const.FULLSCREEN_SYS_UI);
-            }
-        });
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+        requireActivity().getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(
+                new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        requireActivity().getWindow().getDecorView()
+                                .setSystemUiVisibility(Const.FULLSCREEN_SYS_UI);
+                    }
+                });
         requireActivity().getWindow().getDecorView().setSystemUiVisibility(Const.FULLSCREEN_SYS_UI);
         //requireActivity().getWindow().getW
     }
@@ -401,7 +504,8 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     }
 
     @Override
-    public boolean onJsPrompt(String url, String message, String defaultValue, JsPromptResult result) {
+    public boolean onJsPrompt(String url, String message, String defaultValue,
+            JsPromptResult result) {
         EditText input = new EditText(requireActivity());
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setText(defaultValue);
@@ -479,7 +583,8 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
 
     @Override
     public void addToHistory(String title, String url, long time) {
-        History history = new History(title, url, time, sharedPreferences.getString("phoneNumber", ""));
+        History history = new History(title, url, time,
+                sharedPreferences.getString("phoneNumber", ""));
         historyViewModel.addHistory(history);
     }
 
