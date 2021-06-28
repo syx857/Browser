@@ -266,10 +266,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
                         .show();
             }
         }
-        if (id == R.id.nav_download) {
-            menuPopup.dismiss();
-            toContainerActivity(R.id.downloadFragment);
-        }
+
         if (id == R.id.nav_history) {
             menuPopup.dismiss();
             if (sharedPreferences.getBoolean("login_state", false)) {

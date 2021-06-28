@@ -1,14 +1,11 @@
 package com.tech.client;
 
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.webkit.WebHistoryItem;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import com.tech.domain.History;
-import com.tech.repository.HistoryRepository;
 
 public class MyWebViewClient extends WebViewClient {
 
@@ -71,7 +68,6 @@ public class MyWebViewClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         isLoad = false;
         if (callback != null) {
-            //Log.d("mytest",callback.shouldOverrideUrlLoading(view, request)+"");
             return callback.shouldOverrideUrlLoading(view, request) || super.shouldOverrideUrlLoading(view, request);
         }
         return super.shouldOverrideUrlLoading(view, request);

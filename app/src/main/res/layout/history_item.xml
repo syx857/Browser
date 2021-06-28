@@ -24,14 +24,14 @@
             android:textColor="@color/black"
             android:textSize="17dp"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:maxLines="1"
             android:ellipsize="end"
             android:paddingTop="10dp" />
         <TextView
             android:id="@+id/history_url"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="25dp"
             android:maxLines="1"
             android:ellipsize="end"
             android:paddingBottom="5dp"

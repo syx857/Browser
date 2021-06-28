@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
+        android:dialogIcon="@drawable/ic_baseline_search_24"
+        android:dialogTitle="选择默认的搜索引擎"
+        android:icon="@drawable/ic_baseline_search_24"
+        android:summary="选择默认的搜索引擎"
+        app:defaultValue="https://www.baidu.com/s?ie=UTF-8&amp;wd="
         android:defaultValue="true"
         android:entries="@array/search_engine_name"
         android:entryValues="@array/search_engine_prefix"

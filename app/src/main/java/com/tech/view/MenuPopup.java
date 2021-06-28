@@ -54,7 +54,6 @@ public class MenuPopup extends PopupWindow {
     void setupOnClick() {
         binding.navAddBookmark.setOnClickListener(this::onClick);
         binding.navBookmark.setOnClickListener(this::onClick);
-        binding.navDownload.setOnClickListener(this::onClick);
         binding.navHistory.setOnClickListener(this::onClick);
         binding.navSetting.setOnClickListener(this::onClick);
         binding.navLogin.setOnClickListener(this::onClick);
