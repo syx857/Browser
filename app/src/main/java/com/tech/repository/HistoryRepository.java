@@ -59,6 +59,19 @@ public class HistoryRepository<AppDatabase> {
                 return null;
             }
         }.execute();
+        historyApi.deleteHistory(new HistoryArray(Arrays.asList(history))).enqueue(
+                new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call,
+                            Response<ResponseBody> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
     }
 
 

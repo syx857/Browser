@@ -12,6 +12,8 @@ import com.tech.domain.BookmarkArray;
 import com.tech.domain.User;
 import com.tech.web.ResponseBody;
 import com.tech.web.RetrofitFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,6 +66,19 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
+        bookmarkApi.deleteBookmark(new BookmarkArray(Arrays.asList(bookmark))).enqueue(
+                new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call,
+                            Response<ResponseBody> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
     }
 
     public void deleteAll() {
@@ -115,5 +130,21 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
+        List<Bookmark> bookmarkList = new ArrayList<Bookmark>();
+        bookmarkList.add(bookmark);
+        bookmarkList.add(newBookmark);
+        bookmarkApi.updateBookmark(new BookmarkArray(bookmarkList)).enqueue(
+                new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call,
+                            Response<ResponseBody> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
     }
 }

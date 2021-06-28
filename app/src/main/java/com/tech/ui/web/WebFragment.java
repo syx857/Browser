@@ -1,9 +1,13 @@
 package com.tech.ui.web;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,12 +39,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.tech.MainViewModel;
 import com.tech.adapter.ViewPagerAdapter;
 import com.tech.client.MyWebChromeClient;
@@ -76,6 +84,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
     MainViewModel mainViewModel;
     HistoryViewModel historyViewModel;
     WebFragmentToken token;
+    String imageUrl;
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
             String s = (String) msg.obj;
@@ -87,6 +96,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
             int curPosition = msg.arg1;
 
             binding.showWebPhoto.setVisibility(View.VISIBLE);
+            binding.downloadImage.setOnClickListener(this::onClick);
 
             ViewPager2 viewPager = binding.viewPager;
             ViewPagerAdapter adapter = new ViewPagerAdapter(getContext(), imageUrls, curPosition);
@@ -109,6 +119,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
                 public void onPageSelected(int position) {
                     super.onPageSelected(position);
                     imageCount.setText((position + 1) + "/" + imageUrls.length);
+                    imageUrl = imageUrls[position];
                 }
 
                 @Override
@@ -120,7 +131,51 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback, M
         return false;
     });
 
-    @Nullable
+    private void onClick(View view) {
+        if (view == binding.downloadImage) {
+            saveToLocal(imageUrl);
+        } else if (view == binding.editPhoto) {
+
+        }
+    }
+
+    public void saveToLocal(String url) {
+        Glide.with(this)
+                .load(url)
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource,
+                            @Nullable Transition<? super Drawable> transition) {
+                        Bitmap bitmap = ((BitmapDrawable)resource).getBitmap();
+                        //saveImage(bitmap, dir, fileName);
+
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+    }
+
+
+    public Boolean verifyPermissions() {
+
+        // This will return the current Status
+        int permissionExternalMemory = ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionExternalMemory != PackageManager.PERMISSION_GRANTED) {
+
+            String[] STORAGE_PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            // If permission not granted then ask for permission real time.
+            ActivityCompat.requestPermissions(requireActivity(), STORAGE_PERMISSIONS, 1);
+            return false;
+        }
+        return true;
+    }
+
+
+
+        @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
