@@ -4,7 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -36,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -72,8 +75,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
      * for full screen
      */
     View overlay;
-    int orientation;
-    int visibility;
     WebChromeClient.CustomViewCallback callback;
     /**
      * for full screen
@@ -366,7 +367,16 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         ((FrameLayout) requireActivity().getWindow().getDecorView()).addView(view,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
-        hideSystemUI();
+        fullScreen();
+        hideStatusBar();
+    }
+
+    private void fullScreen() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     /**
@@ -379,9 +389,24 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         }
         ((FrameLayout) requireActivity().getWindow().getDecorView()).removeView(overlay);
         overlay = null;
-        showSystemUI();
+        fullScreen();
+        showStatusBar();
         callback.onCustomViewHidden();
         callback = null;
+    }
+
+    private void hideStatusBar() {
+        WindowInsetsControllerCompat controller = ViewCompat.getWindowInsetsController(binding.getRoot());
+        controller.hide(WindowInsetsCompat.Type.statusBars());
+        controller.hide(WindowInsetsCompat.Type.systemBars());
+        controller.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    }
+
+    private void showStatusBar() {
+        WindowInsetsControllerCompat controller = ViewCompat.getWindowInsetsController(binding.getRoot());
+        controller.show(WindowInsetsCompat.Type.statusBars());
+        controller.show(WindowInsetsCompat.Type.systemBars());
     }
 
     public void showSystemUI() {
@@ -505,7 +530,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         }
         if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(url)) {
             History history = new History(title, url, time,
-                    sharedPreferences.getString("phoneNumber", ""));
+                    sharedPreferences.getString("phoneNumber", "anonymous"));
             historyViewModel.addHistory(history);
         }
     }
@@ -555,12 +580,14 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     public void goForward() {
         if (binding.webView.canGoForward()) {
+            binding.showWebPhoto.setVisibility(View.GONE);
             binding.webView.goForward();
             Log.d(TAG, "goForward: canGoForward");
         }
     }
 
     public void goHome() {
+        binding.showWebPhoto.setVisibility(View.GONE);
         binding.webView.stopLoading();
         binding.webView.loadUrl(HOME);
         binding.webView.clearHistory();
@@ -574,5 +601,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     public void close() {
         WebViewUtils.destroyWebView(binding.webView);
+        binding.showWebPhoto.setVisibility(View.GONE);
     }
 }

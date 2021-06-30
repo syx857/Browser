@@ -43,17 +43,20 @@ public class HistoryRepository<AppDatabase> {
                 return null;
             }
         }.execute();
-        historyApi.addHistory(history).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d("mytest","添加历史成功");
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d("mytest","添加历史失败");
-            }
-        });
+        if (sharedPreferences.getBoolean("login_state", false)){
+            historyApi.addHistory(history).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.d("mytest","添加历史成功");
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.d("mytest","添加历史失败");
+                }
+            });
+        }
     }
 
     public void deleteHistory(History... history) {
@@ -64,19 +67,22 @@ public class HistoryRepository<AppDatabase> {
                 return null;
             }
         }.execute();
-        historyApi.deleteHistory(new HistoryArray(Arrays.asList(history))).enqueue(
-                new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call,
-                            Response<ResponseBody> response) {
 
-                    }
+        if (sharedPreferences.getBoolean("login_state", false)){
+            historyApi.deleteHistory(new HistoryArray(Arrays.asList(history))).enqueue(
+                    new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call,
+                                Response<ResponseBody> response) {
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        }
 
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                        }
+                    });
+        }
     }
 
 
@@ -100,21 +106,25 @@ public class HistoryRepository<AppDatabase> {
                 return null;
             }
         }.execute();
-        User user = new User(sharedPreferences.getString("phoneNumber", ""));
-        historyApi.clearHistory(user).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            }
+        if (sharedPreferences.getBoolean("login_state", false)){
+            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+            historyApi.clearHistory(user).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                }
 
-            }
-        });
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+        }
     }
 
     public void loadHistoryListFromRemote(User user) {
+        deleteAll();
         historyApi.getHistory(user).enqueue(new Callback<HistoryArray>() {
             @Override
             public void onResponse(Call<HistoryArray> call, Response<HistoryArray> response) {

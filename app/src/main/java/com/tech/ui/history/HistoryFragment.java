@@ -64,7 +64,7 @@ public class HistoryFragment extends Fragment implements AdapterView.OnItemClick
         sharedPreferences = requireActivity().getSharedPreferences("user", MODE_PRIVATE);
 
         viewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
-        if (!sharedPreferences.getBoolean("loadHistory", false)) {
+        if (sharedPreferences.getBoolean("login_state", false) && !sharedPreferences.getBoolean("loadHistory", false)) {
             User user = new User(sharedPreferences.getString("phoneNumber", ""));
             viewModel.loadHistoryListFromRemote(user);
             SharedPreferences.Editor editor = sharedPreferences.edit();

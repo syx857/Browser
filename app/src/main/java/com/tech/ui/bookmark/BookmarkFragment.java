@@ -67,7 +67,7 @@ public class BookmarkFragment extends Fragment implements AdapterView.OnItemClic
         sharedPreferences = requireActivity().getSharedPreferences("user", MODE_PRIVATE);
 
         viewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
-        if (!sharedPreferences.getBoolean("loadBookmark", false)) {
+        if (sharedPreferences.getBoolean("login_state", false) && !sharedPreferences.getBoolean("loadBookmark", false)) {
             User user = new User(sharedPreferences.getString("phoneNumber", ""));
             viewModel.loadBookmarkListFromRemote(user);
             SharedPreferences.Editor editor = sharedPreferences.edit();

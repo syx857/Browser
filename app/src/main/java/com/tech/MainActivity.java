@@ -262,65 +262,50 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
     }
 
     public void menuClick(int id) {
-        if (id == R.id.nav_add_bookmark) {
-            if (!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils
-                    .isEmpty(webFragmentToken.title)) {
-                Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title,
-                        sharedPreferences.getString("phoneNumber", ""));
-                bookmarkViewModel.addBookmark(bookmark);
+        switch(id) {
+            case R.id.nav_add_bookmark:
+                if (!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils
+                        .isEmpty(webFragmentToken.title)) {
+                    Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title,
+                            sharedPreferences.getString("phoneNumber", "anonymous"));
+                    bookmarkViewModel.addBookmark(bookmark);
+                    menuPopup.dismiss();
+                    Toast.makeText(getApplicationContext(), "已添加至书签", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.nav_bookmark:
                 menuPopup.dismiss();
-                Toast.makeText(getApplicationContext(), "已添加至书签", Toast.LENGTH_SHORT).show();
-            }
-        }
-        if (id == R.id.nav_bookmark) {
-            menuPopup.dismiss();
-            if (sharedPreferences.getBoolean("login_state", false)) {
                 toContainerActivity(R.id.bookmarkFragment);
-            } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("提示")
-                        .setMessage("请登陆后查看书签")
-                        .setCancelable(true)
-                        .create()
-                        .show();
-            }
-        }
-
-        if (id == R.id.nav_history) {
-            menuPopup.dismiss();
-            if (sharedPreferences.getBoolean("login_state", false)) {
+                break;
+            case R.id.nav_history:
+                menuPopup.dismiss();
                 toContainerActivity(R.id.historyFragment);
-            } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("提示")
-                        .setMessage("请登陆后查看历史记录")
-                        .setCancelable(true)
-                        .create()
-                        .show();
-            }
+                break;
+            case R.id.nav_setting:
+                menuPopup.dismiss();
+                toContainerActivity(R.id.settingFragment);
+                break;
+            case R.id.nav_login:
+                menuPopup.dismiss();
+                if (sharedPreferences.getBoolean("login_state", false)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("提示").setMessage("您已经登录，是否退出登录？");
+                    builder.setPositiveButton("确定", (dialog, which) -> {
+                        exitLogin();
+                        dialog.dismiss();
+                    });
+                    builder.setNegativeButton("取消", (dialog, which) -> {
+                        dialog.dismiss();
+                    });
+                    builder.setCancelable(true);
+                    builder.create().show();
+                } else {
+                    toContainerActivity(R.id.passwordLoginFragment);
+                }
+                break;
+            default:
+                break;
 
-        }
-        if (id == R.id.nav_setting) {
-            menuPopup.dismiss();
-            toContainerActivity(R.id.settingFragment);
-        }
-        if (id == R.id.nav_login) {
-            menuPopup.dismiss();
-            if (sharedPreferences.getBoolean("login_state", false)) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("提示").setMessage("您已经登录，是否退出登录？");
-                builder.setPositiveButton("确定", (dialog, which) -> {
-                    exitLogin();
-                    dialog.dismiss();
-                });
-                builder.setNegativeButton("取消", (dialog, which) -> {
-                    dialog.dismiss();
-                });
-                builder.setCancelable(true);
-                builder.create().show();
-            } else {
-                toContainerActivity(R.id.passwordLoginFragment);
-            }
         }
     }
 

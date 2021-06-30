@@ -45,6 +45,7 @@ public class BookmarkRepository {
     }
 
     public void loadBookmarkListFromRemote(User user) {
+        deleteAll();
         bookmarkApi.getBookmark(user).enqueue(new Callback<BookmarkArray>() {
             @Override
             public void onResponse(Call<BookmarkArray> call, Response<BookmarkArray> response) {
@@ -71,19 +72,22 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
-        bookmarkApi.deleteBookmark(new BookmarkArray(Arrays.asList(bookmark))).enqueue(
-                new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call,
-                            Response<ResponseBody> response) {
 
-                    }
+        if (sharedPreferences.getBoolean("login_state", false)){
+            bookmarkApi.deleteBookmark(new BookmarkArray(Arrays.asList(bookmark))).enqueue(
+                    new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call,
+                                Response<ResponseBody> response) {
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        }
 
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                        }
+                    });
+        }
     }
 
     public void deleteAll() {
@@ -94,19 +98,21 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
-        User user = new User(sharedPreferences.getString("phoneNumber", ""));
-        bookmarkApi.clearBookmark(user).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            }
+        if (sharedPreferences.getBoolean("login_state", false)){
+            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+            bookmarkApi.clearBookmark(user).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                }
 
-            }
-        });
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
 
+                }
+            });
+        }
     }
 
     public void addBookmark(Bookmark bookmark) {
@@ -117,17 +123,20 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
-        bookmarkApi.addBookmark(bookmark).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            }
+        if (sharedPreferences.getBoolean("login_state", false)){
+            bookmarkApi.addBookmark(bookmark).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                }
 
-            }
-        });
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+        }
     }
 
     public void _addBookmark(Bookmark... bookmark) {
@@ -148,21 +157,25 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
-        List<Bookmark> bookmarkList = new ArrayList<Bookmark>();
-        bookmarkList.add(bookmark);
-        bookmarkList.add(newBookmark);
-        bookmarkApi.updateBookmark(new BookmarkArray(bookmarkList)).enqueue(
-                new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call,
-                            Response<ResponseBody> response) {
 
-                    }
+        if (sharedPreferences.getBoolean("login_state", false)){
+            List<Bookmark> bookmarkList = new ArrayList<Bookmark>();
+            bookmarkList.add(bookmark);
+            bookmarkList.add(newBookmark);
+            bookmarkApi.updateBookmark(new BookmarkArray(bookmarkList)).enqueue(
+                    new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call,
+                                Response<ResponseBody> response) {
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        }
 
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                        }
+                    });
+        }
+
     }
 }
