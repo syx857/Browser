@@ -1,6 +1,9 @@
 package com.tech.repository;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
@@ -24,11 +27,13 @@ public class BookmarkRepository {
     BookmarkDao bookmarkDao;
     BrowserDatabase appDatabase;
     BookmarkApi bookmarkApi;
+    SharedPreferences sharedPreferences;
 
     public BookmarkRepository(Context context) {
         appDatabase = BrowserDatabase.getInstance(context);
         bookmarkDao = appDatabase.getBookMarkDao();
         bookmarkApi = RetrofitFactory.getInstance().create(BookmarkApi.class);
+        sharedPreferences = context.getSharedPreferences("user", MODE_PRIVATE);
     }
 
     public LiveData<List<Bookmark>> searchBookmark(String key) {
@@ -89,6 +94,19 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
+        User user = new User(sharedPreferences.getString("phoneNumber", ""));
+        bookmarkApi.clearBookmark(user).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
     }
 
     public void addBookmark(Bookmark bookmark) {

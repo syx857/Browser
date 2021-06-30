@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -499,9 +500,11 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     @Override
     public void addToHistory(String title, String url, long time) {
-        History history = new History(title, url, time,
-                sharedPreferences.getString("phoneNumber", ""));
-        historyViewModel.addHistory(history);
+        if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(url)) {
+            History history = new History(title, url, time,
+                    sharedPreferences.getString("phoneNumber", ""));
+            historyViewModel.addHistory(history);
+        }
     }
 
     public void setTitle(String title) {

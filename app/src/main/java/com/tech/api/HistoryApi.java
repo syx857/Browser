@@ -6,6 +6,7 @@ import com.tech.domain.User;
 import com.tech.web.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface HistoryApi {
@@ -18,4 +19,7 @@ public interface HistoryApi {
 
     @POST("deleteHistory")
     Call<ResponseBody> deleteHistory(@Body HistoryArray history);
+
+    @POST("clearHistory")
+    Call<ResponseBody> clearHistory(@Body User user);
 }
