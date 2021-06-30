@@ -7,12 +7,22 @@
         android:dialogTitle="选择默认的搜索引擎"
         android:icon="@drawable/ic_baseline_search_24"
         android:summary="选择默认的搜索引擎"
-        app:defaultValue="https://www.baidu.com/s?ie=UTF-8&amp;wd="
-        android:defaultValue="true"
+        android:defaultValue="https://www.baidu.com/s?ie=UTF-8&amp;wd="
         android:entries="@array/search_engine_name"
         android:entryValues="@array/search_engine_prefix"
         android:key="search engine"
         android:persistent="true"
         android:title="搜索引擎" />
+    <ListPreference
+        android:dialogIcon="@drawable/ic_incognito"
+        android:dialogTitle="选择是否无痕浏览"
+        android:icon="@drawable/ic_incognito"
+        android:summary="选择是否无痕浏览"
+        android:defaultValue="false"
+        android:entries="@array/incognito_name"
+        android:entryValues="@array/incognito"
+        android:key="incognito"
+        android:persistent="true"
+        android:title="无痕浏览" />
 
 </PreferenceScreen>

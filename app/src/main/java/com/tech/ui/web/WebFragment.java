@@ -500,6 +500,9 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     @Override
     public void addToHistory(String title, String url, long time) {
+        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getString("incognito", "false").equals("true")) {
+            return;
+        }
         if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(url)) {
             History history = new History(title, url, time,
                     sharedPreferences.getString("phoneNumber", ""));
