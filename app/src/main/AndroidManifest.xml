@@ -17,6 +17,16 @@
         android:theme="@style/Theme.TechBrowser"
         android:usesCleartextTraffic="true">
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.tech.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
             android:name=".MainActivity"
             android:alwaysRetainTaskState="true"
@@ -38,6 +48,11 @@
             android:hardwareAccelerated="true"
             android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
     </application>
 </manifest>

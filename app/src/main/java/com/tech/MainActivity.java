@@ -1,8 +1,12 @@
 package com.tech;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,26 +25,33 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-
 import com.tech.databinding.ActivityMainBinding;
 import com.tech.domain.Bookmark;
 import com.tech.model.WebFragmentToken;
+import com.tech.utils.PhotoUtils;
 import com.tech.view.MenuPopup;
 import com.tech.view.PagePopup;
 import com.tech.viewmodel.BookmarkViewModel;
 import com.tech.viewmodel.HistoryViewModel;
+import com.yalantis.ucrop.UCrop;
+import java.io.FileNotFoundException;
 
-public class MainActivity extends AppCompatActivity implements TextWatcher, PagePopup.PagePopupCallback {
+public class MainActivity extends AppCompatActivity implements TextWatcher,
+        PagePopup.PagePopupCallback {
+
     public static final String TAG = "MainActivity";
+    public static final int MY_PERMISSIONS_REQUEST_SAVE_PICTURE = 0x11;
 
     MainViewModel viewModel;
     BookmarkViewModel bookmarkViewModel;
@@ -51,8 +62,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     WebFragmentToken webFragmentToken;
     SharedPreferences sharedPreferences;
     HistoryViewModel historyViewModel;
+    Bitmap bitmap;
 
-    ActivityResultLauncher<Integer> launcher = registerForActivityResult(new MyActivityResultContract(), this::onActivityResult);
+    ActivityResultLauncher<Integer> launcher = registerForActivityResult(
+            new MyActivityResultContract(), this::onActivityResult);
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -86,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
      * @param num 页数
      */
     public void setTotalPage(int num) {
-        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_crop_square_24, null);
+        Drawable drawable = ResourcesCompat
+                .getDrawable(getResources(), R.drawable.ic_baseline_crop_square_24, null);
         assert drawable != null;
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
                 drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
@@ -205,7 +219,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
             doMenuPopup();
         }
         if (v == binding.suggestView.suggestSearch.getRoot()) {
-            String prefix = PreferenceManager.getDefaultSharedPreferences(this).getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
+            String prefix = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString("search engine", "https://www.baidu.com/s?ie=UTF-8&wd=");
             loadUrl(prefix + Uri.encode(binding.appBar.editText.getText().toString()));
         }
         if (v == binding.suggestView.suggestUrl.getRoot()) {
@@ -226,7 +241,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
             getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
         }
         pagePopup.setMaxHeight(binding.container.getHeight());
-        pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
+        pagePopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0],
+                displayMetrics.heightPixels - location[1]);
     }
 
     public void doMenuPopup() {
@@ -241,13 +257,16 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
         } else {
             getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
         }
-        menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0], displayMetrics.heightPixels - location[1]);
+        menuPopup.showAtLocation(binding.getRoot(), Gravity.BOTTOM, location[0],
+                displayMetrics.heightPixels - location[1]);
     }
 
     public void menuClick(int id) {
         if (id == R.id.nav_add_bookmark) {
-            if(!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils.isEmpty(webFragmentToken.title)) {
-                Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title, sharedPreferences.getString("phoneNumber", ""));
+            if (!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils
+                    .isEmpty(webFragmentToken.title)) {
+                Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title,
+                        sharedPreferences.getString("phoneNumber", ""));
                 bookmarkViewModel.addBookmark(bookmark);
                 menuPopup.dismiss();
                 Toast.makeText(getApplicationContext(), "已添加至书签", Toast.LENGTH_SHORT).show();
@@ -306,8 +325,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     }
 
     public void exitLogin() {
-        SharedPreferences.Editor editor =  sharedPreferences.edit();
-        editor.putBoolean("login_state",false);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("login_state", false);
         editor.putString("phoneNumber", null);
         editor.putBoolean("loadBookmark", false);
         editor.putBoolean("loadHistory", false);
@@ -356,7 +375,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
     }
 
     public boolean onTouch(View v, MotionEvent event) {
-        if (v != binding.appBar.editText && event.getAction() == MotionEvent.ACTION_DOWN && binding.appBar.editText.isFocused()) {
+        if (v != binding.appBar.editText && event.getAction() == MotionEvent.ACTION_DOWN
+                && binding.appBar.editText.isFocused()) {
             Log.d(TAG, "onTouch: clear edit text focus");
             clearEditTextFocus();
             return true;
@@ -415,5 +435,72 @@ public class MainActivity extends AppCompatActivity implements TextWatcher, Page
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case UCrop.REQUEST_CROP:
+                if (resultCode == RESULT_OK) {
+                    final Uri resultUri = UCrop.getOutput(data);
+                    if (resultUri != null && resultUri.getScheme().equals("file")) {
+                        copyFileToDownloads(resultUri);
+                    } else {
+                        Toast.makeText(this, "未知错误", Toast.LENGTH_SHORT).show();
+                    }
+                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    final Throwable cropError = UCrop.getError(data);
+                    Toast.makeText(this, cropError.toString(), Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_SAVE_PICTURE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (bitmap != null) {
+                        PhotoUtils.saveImage(bitmap, this, this);
+                    }
+                } else {
+                    Toast.makeText(this, "没有获得权限，无法保存图片", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+        }
+    }
+
+    private void copyFileToDownloads(Uri croppedFileUri) {
+        bitmap = null;
+        try {
+            bitmap = BitmapFactory
+                    .decodeStream(getContentResolver().openInputStream(croppedFileUri));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (bitmap != null) {
+            if (verifyPermissions()) {
+                PhotoUtils.saveImage(bitmap, this, this);
+            }
+        }
+    }
+
+    public boolean verifyPermissions() {
+        int permissionExternalMemory = ContextCompat
+                .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionExternalMemory != PackageManager.PERMISSION_GRANTED) {
+            String[] STORAGE_PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS,
+                    MY_PERMISSIONS_REQUEST_SAVE_PICTURE);
+            return false;
+        }
+        return true;
     }
 }

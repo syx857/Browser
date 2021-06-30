@@ -1,8 +1,6 @@
 package com.tech.ui.web;
 
 import android.Manifest;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -10,16 +8,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.FileUtils;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -27,8 +20,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
@@ -41,10 +32,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -60,19 +53,11 @@ import com.tech.client.MyWebViewClient;
 import com.tech.databinding.FragmentWebBinding;
 import com.tech.domain.History;
 import com.tech.model.WebFragmentToken;
-import com.tech.utils.Const;
+import com.tech.utils.PhotoUtils;
 import com.tech.utils.WebViewUtils;
 import com.tech.viewmodel.HistoryViewModel;
-import java.io.BufferedOutputStream;
+import com.yalantis.ucrop.UCrop;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.FileNameMap;
-import java.net.URLConnection;
-import java.util.UUID;
 
 public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         MyWebChromeClient.Callback {
@@ -80,8 +65,8 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     public static final String TAG = "WebFragment";
     public static final String HOME = "file:///android_asset/home.html";
     public static final int SEARCH = 0x33;
-    public static final int SHOW = 1;
-    public static final int MY_PERMISSIONS_REQUEST_SAVE_PICTURE = 2;
+    public static final int SHOW = 0x11;
+    public static final int MY_PERMISSIONS_REQUEST_SAVE_PICTURE = 0x22;
     /**
      * for full screen
      */
@@ -100,6 +85,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     HistoryViewModel historyViewModel;
     WebFragmentToken token;
     String imageUrl;
+    Bitmap bitmap = null;
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
             String s = (String) msg.obj;
@@ -175,7 +161,9 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         if (view == binding.downloadImage) {
             saveToLocal(imageUrl);
         } else if (view == binding.editPhoto) {
-
+            UCrop.of(Uri.parse(imageUrl), Uri.fromFile(
+                    new File(requireActivity().getCacheDir(), PhotoUtils.generateFileName())))
+                    .start((AppCompatActivity) requireActivity());
         }
     }
 
@@ -186,7 +174,9 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
             case MY_PERMISSIONS_REQUEST_SAVE_PICTURE:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                    if (bitmap != null) {
+                        PhotoUtils.saveImage(bitmap, requireActivity(), getContext());
+                    }
                 } else {
                     Toast.makeText(getContext(), "没有获得权限，无法保存图片", Toast.LENGTH_SHORT).show();
                 }
@@ -202,9 +192,11 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
                     @Override
                     public void onResourceReady(@NonNull Drawable resource,
                             @Nullable Transition<? super Drawable> transition) {
-                        Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
+                        bitmap = ((BitmapDrawable) resource).getBitmap();
                         if (verifyPermissions()) {
-                            saveImage(bitmap);
+                            if (bitmap != null) {
+                                PhotoUtils.saveImage(bitmap, requireActivity(), getContext());
+                            }
                         }
                     }
 
@@ -221,74 +213,10 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
                 .checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permissionExternalMemory != PackageManager.PERMISSION_GRANTED) {
             String[] STORAGE_PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            ActivityCompat.requestPermissions(requireActivity(), STORAGE_PERMISSIONS,
-                    MY_PERMISSIONS_REQUEST_SAVE_PICTURE);
+            requestPermissions(STORAGE_PERMISSIONS, MY_PERMISSIONS_REQUEST_SAVE_PICTURE);
             return false;
         }
         return true;
-    }
-
-    private static String generateFileName() {
-        return UUID.randomUUID().toString();
-    }
-
-    private void saveImage(Bitmap bitmap) {
-        File file = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                generateFileName() + ".jpg");
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        OutputStream outputStream;
-        try {
-            outputStream = new BufferedOutputStream(new FileOutputStream(file));
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            if (!bitmap.isRecycled()) {
-                bitmap.recycle();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.getName());
-            values.put(MediaStore.MediaColumns.MIME_TYPE, getMimeType(file));
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM);
-            ContentResolver contentResolver = requireActivity().getContentResolver();
-            Uri uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            if (uri == null) {
-                Toast.makeText(getContext(), "图片保存失败", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            try {
-                outputStream = contentResolver.openOutputStream(uri);
-                FileInputStream fileInputStream = new FileInputStream(file);
-                FileUtils.copy(fileInputStream, outputStream);
-                fileInputStream.close();
-                outputStream.close();
-                Toast.makeText(getContext(), "图片保存成功", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            MediaScannerConnection.scanFile(
-                    requireActivity().getApplicationContext(),
-                    new String[]{file.getAbsolutePath()},
-                    new String[]{"image/jpeg"},
-                    (path, uri) -> {
-                        // Scan Completed
-                    });
-        }
-    }
-
-    public static String getMimeType(File file) {
-        FileNameMap fileNameMap = URLConnection.getFileNameMap();
-        String type = fileNameMap.getContentTypeFor(file.getName());
-        return type;
     }
 
     /**
@@ -433,24 +361,11 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
             return;
         }
         this.callback = callback;
-        //TODO full screen
-        //view.setFitsSystemWindows(true);
         overlay = view;
-        orientation = requireActivity().getRequestedOrientation();
-        visibility = requireActivity().getWindow().getDecorView().getSystemUiVisibility();
         ((FrameLayout) requireActivity().getWindow().getDecorView()).addView(view,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
-        requireActivity().getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(
-                new View.OnSystemUiVisibilityChangeListener() {
-                    @Override
-                    public void onSystemUiVisibilityChange(int visibility) {
-                        requireActivity().getWindow().getDecorView()
-                                .setSystemUiVisibility(Const.FULLSCREEN_SYS_UI);
-                    }
-                });
-        requireActivity().getWindow().getDecorView().setSystemUiVisibility(Const.FULLSCREEN_SYS_UI);
-        //requireActivity().getWindow().getW
+        hideSystemUI();
     }
 
     /**
@@ -458,16 +373,34 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
      */
     @Override
     public void onHideCustomView() {
-        //TODO cancel full screen
         if (overlay == null) {
             return;
         }
         ((FrameLayout) requireActivity().getWindow().getDecorView()).removeView(overlay);
         overlay = null;
-        requireActivity().setRequestedOrientation(orientation);
-        requireActivity().getWindow().getDecorView().setSystemUiVisibility(visibility);
+        showSystemUI();
         callback.onCustomViewHidden();
         callback = null;
+    }
+
+    public void showSystemUI() {
+        Window window = requireActivity().getWindow();
+        View decorView = window.getDecorView();
+        WindowCompat.setDecorFitsSystemWindows(window, true);
+        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(
+                window, decorView);
+        insetsControllerCompat.show(WindowInsetsCompat.Type.systemBars());
+    }
+
+    public void hideSystemUI() {
+        Window window = requireActivity().getWindow();
+        View decorView = window.getDecorView();
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(
+                window, decorView);
+        insetsControllerCompat.hide(WindowInsetsCompat.Type.systemBars());
+        insetsControllerCompat.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 
     @Override
@@ -531,23 +464,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     public void onDestroy() {
         super.onDestroy();
         onHideCustomView();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    public void fullscreen() {
-        Window window = requireActivity().getWindow();
-        View decorView = window.getDecorView();
-        WindowInsets windowInsets = decorView.getRootWindowInsets();
-        decorView.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-                return null;
-            }
-        });
-        WindowInsetsController insetsController = window.getInsetsController();
-        insetsController.hide(WindowInsets.Type.navigationBars());
-        insetsController.hide(WindowInsets.Type.statusBars());
-
     }
 
     @Override
