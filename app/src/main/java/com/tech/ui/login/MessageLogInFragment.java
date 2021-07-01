@@ -54,26 +54,54 @@ public class MessageLogInFragment extends Fragment implements View.OnClickListen
             int result = msg.arg2;
             Object data = msg.obj;
 
-            if (result == SMSSDK.RESULT_COMPLETE) {
-                if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+            if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                if (result == SMSSDK.RESULT_COMPLETE) {
                     isVerified = true;
-                } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                    Toast.makeText(getContext(), "验证码已发送",
-                            Toast.LENGTH_LONG).show();
-                }
-            } else if (result == SMSSDK.RESULT_ERROR) {
-                if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    gotoLogin();
+                } else {
                     isVerified = false;
-                    Toast.makeText(getContext(), "验证码错误",
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "验证码错误", Toast.LENGTH_LONG).show();
+                }
+            } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
+                if (result == SMSSDK.RESULT_COMPLETE) {
+                    Toast.makeText(getContext(), "验证码已发送", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getContext(), ((Throwable) data).getMessage(), Toast.LENGTH_LONG)
                             .show();
                 }
             } else {
-                Toast.makeText(getContext(), "其他失败", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "未知错误", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public void gotoLogin() {
+        if (!isVerified) {
+            return;
+        }
+        User user = new User(binding.loginPhoneNumberEdit.getText().toString());
+        userApi.getUser(user).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+
+                if (response.body() != null) {
+                    Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("login_state", true);
+                    editor.putString("phoneNumber", phoneNumber);
+                    editor.apply();
+                    requireActivity().onBackPressed();
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
+        isVerified = false;
     }
 
     @Nullable
@@ -141,31 +169,6 @@ public class MessageLogInFragment extends Fragment implements View.OnClickListen
                 if (confirmVcode()) {
                     SMSSDK.submitVerificationCode("86", phoneNumber, cord);
                 }
-                if (!isVerified) {
-                    break;
-                }
-                User user = new User(binding.loginPhoneNumberEdit.getText().toString());
-                userApi.getUser(user).enqueue(new Callback<User>() {
-                    @Override
-                    public void onResponse(Call<User> call, Response<User> response) {
-
-                        if (response.body() != null) {
-                            Toast.makeText(v.getContext(), "登录成功", Toast.LENGTH_SHORT).show();
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean("login_state", true);
-                            editor.putString("phoneNumber", phoneNumber);
-                            editor.apply();
-                            requireActivity().onBackPressed();
-                        } else {
-
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<User> call, Throwable t) {
-
-                    }
-                });
                 break;
             case R.id.nav_to_register:
                 navController.navigate(R.id.registerFragment);

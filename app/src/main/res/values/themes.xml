@@ -17,6 +17,10 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="buttonBarPositiveButtonStyle">@style/positiveBtnStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/negativeBtnstyle</item>
+
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@null</item>
+
     </style>
 
     <style name="positiveBtnStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">

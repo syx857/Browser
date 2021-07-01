@@ -53,26 +53,55 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
             int result = msg.arg2;
             Object data = msg.obj;
 
-            if (result == SMSSDK.RESULT_COMPLETE) {
-                if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+            if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                if (result == SMSSDK.RESULT_COMPLETE) {
                     isVerified = true;
-                } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                    Toast.makeText(getContext(), "验证码已发送",
-                            Toast.LENGTH_LONG).show();
-                }
-            } else if (result == SMSSDK.RESULT_ERROR) {
-                if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    gotoRegister();
+                } else {
                     isVerified = false;
-                    Toast.makeText(getContext(), "验证码错误",
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "验证码错误", Toast.LENGTH_LONG).show();
+                }
+            } else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
+                if (result == SMSSDK.RESULT_COMPLETE) {
+                    Toast.makeText(getContext(), "验证码已发送", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getContext(), ((Throwable) data).getMessage(), Toast.LENGTH_LONG)
                             .show();
                 }
             } else {
-                Toast.makeText(getContext(), "其他失败", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "未知错误", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public void gotoRegister() {
+        if (!confirm() || !isVerified) {
+            return;
+        }
+        User user = new User(binding.registerNameEdit.getText().toString(),
+                binding.registerPasswordEdit.getText().toString(), phoneNumber);
+        UserApi apiService = RetrofitFactory.getInstance().create(UserApi.class);
+        apiService.register(user).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.body().result) {
+                    Toast.makeText(getContext(), "注册成功！", Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("login_state", true);
+                    editor.putString("phoneNumber", phoneNumber);
+                    editor.apply();
+                    requireActivity().onBackPressed();
+                } else {
+                    Toast.makeText(getContext(), "该手机号已注册", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+        isVerified = false;
     }
 
 
@@ -125,38 +154,10 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 if (confirmVcode()) {
                     SMSSDK.submitVerificationCode("86", phoneNumber, vcode);
                 }
-                if (!confirm() || !isVerified) {
-                    break;
-                }
-                User user = new User(binding.registerNameEdit.getText().toString(),
-                        binding.registerPasswordEdit.getText().toString(), phoneNumber);
-                UserApi apiService = RetrofitFactory.getInstance().create(UserApi.class);
-                apiService.register(user).enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        if (response.body().result) {
-                            Toast.makeText(v.getContext(), "注册成功！", Toast.LENGTH_SHORT).show();
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean("login_state", true);
-                            editor.putString("phoneNumber", phoneNumber);
-                            editor.apply();
-                            requireActivity().onBackPressed();
-                        } else {
-                            Toast.makeText(v.getContext(), "该手机号已注册", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                    }
-                });
-                isVerified = false;
                 break;
             case R.id.register_send_cord:
                 if (confirmPhoneNumber()) {
                     SMSSDK.getVerificationCode("86", phoneNumber);
-                    //binding.registerPhoneNumberEdit.requestFocus();
                 }
                 break;
         }
