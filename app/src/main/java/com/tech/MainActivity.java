@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -39,6 +40,7 @@ import androidx.preference.PreferenceManager;
 import com.tech.databinding.ActivityMainBinding;
 import com.tech.domain.Bookmark;
 import com.tech.model.WebFragmentToken;
+import com.tech.utils.Const;
 import com.tech.utils.PhotoUtils;
 import com.tech.view.MenuPopup;
 import com.tech.view.PagePopup;
@@ -67,6 +69,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
     ActivityResultLauncher<Integer> launcher = registerForActivityResult(
             new MyActivityResultContract(), this::onActivityResult);
 
+    SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (menuPopup != null) {
+                if (key.equals(Const.LOGIN_STATE)) {
+                    menuPopup.setLogin(sharedPreferences.getBoolean(key, false));
+                }
+            }
+        }
+    };
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
         binding.appBar.editText.setOnFocusChangeListener(this::onFocusChange);
         binding.getRoot().setOnTouchListener(this::onTouch);
         sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
+
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
     }
 
     /**
@@ -267,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 if (!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils
                         .isEmpty(webFragmentToken.title)) {
                     Bookmark bookmark = new Bookmark(webFragmentToken.url, webFragmentToken.title,
-                            sharedPreferences.getString("phoneNumber", "anonymous"));
+                            sharedPreferences.getString(Const.PHONE_NUMBER, "anonymous"));
                     bookmarkViewModel.addBookmark(bookmark);
                     menuPopup.dismiss();
                     Toast.makeText(getApplicationContext(), "已添加至书签", Toast.LENGTH_SHORT).show();
@@ -287,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 break;
             case R.id.nav_login:
                 menuPopup.dismiss();
-                if (sharedPreferences.getBoolean("login_state", false)) {
+                if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("提示").setMessage("您已经登录，是否退出登录？");
                     builder.setPositiveButton("确定", (dialog, which) -> {
@@ -311,13 +326,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
 
     public void exitLogin() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("login_state", false);
-        editor.putString("phoneNumber", null);
-        editor.putBoolean("loadBookmark", false);
-        editor.putBoolean("loadHistory", false);
+        editor.putBoolean(Const.LOGIN_STATE, false);
+        editor.putString(Const.PHONE_NUMBER, null);
+        editor.putBoolean(Const.LOAD_HISTORY, false);
+        editor.putBoolean(Const.LOAD_BOOKMARK, false);
         editor.apply();
-        bookmarkViewModel.deleteAll();
-        historyViewModel.deleteAll();
+        //bookmarkViewModel.deleteAll();
+        //historyViewModel.deleteAll();
     }
 
     @Override
@@ -487,5 +502,9 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
             return false;
         }
         return true;
+    }
+
+    public interface StateChangeInterface {
+        public void onLoginStateChange();
     }
 }

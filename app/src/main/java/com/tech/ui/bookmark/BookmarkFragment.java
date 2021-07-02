@@ -39,6 +39,7 @@ import com.tech.adapter.BookmarkAdapter;
 import com.tech.databinding.FragmentBookmarkBinding;
 import com.tech.domain.Bookmark;
 import com.tech.domain.User;
+import com.tech.utils.Const;
 import com.tech.viewmodel.BookmarkViewModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,11 +68,11 @@ public class BookmarkFragment extends Fragment implements AdapterView.OnItemClic
         sharedPreferences = requireActivity().getSharedPreferences("user", MODE_PRIVATE);
 
         viewModel = new ViewModelProvider(this).get(BookmarkViewModel.class);
-        if (sharedPreferences.getBoolean("login_state", false) && !sharedPreferences.getBoolean("loadBookmark", false)) {
-            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false) && !sharedPreferences.getBoolean(Const.LOAD_BOOKMARK, false)) {
+            User user = new User(sharedPreferences.getString(Const.PHONE_NUMBER, ""));
             viewModel.loadBookmarkListFromRemote(user);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("loadBookmark", true);
+            editor.putBoolean(Const.LOAD_BOOKMARK, true);
             editor.apply();
         }
         viewModel.getBookmarkList().observe(getViewLifecycleOwner(), bookmarks -> {

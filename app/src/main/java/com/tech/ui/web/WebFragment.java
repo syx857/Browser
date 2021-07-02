@@ -57,6 +57,7 @@ import com.tech.client.MyWebViewClient;
 import com.tech.databinding.FragmentWebBinding;
 import com.tech.domain.History;
 import com.tech.model.WebFragmentToken;
+import com.tech.utils.Const;
 import com.tech.utils.PhotoUtils;
 import com.tech.utils.WebViewUtils;
 import com.tech.viewmodel.HistoryViewModel;
@@ -530,7 +531,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         }
         if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(url)) {
             History history = new History(title, url, time,
-                    sharedPreferences.getString("phoneNumber", "anonymous"));
+                    sharedPreferences.getString(Const.PHONE_NUMBER, "anonymous"));
             historyViewModel.addHistory(history);
         }
     }

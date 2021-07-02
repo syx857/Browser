@@ -23,10 +23,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
+import com.tech.MainActivity;
 import com.tech.R;
 import com.tech.api.UserApi;
 import com.tech.databinding.FragmentMessageLoginBinding;
 import com.tech.domain.User;
+import com.tech.utils.Const;
 import com.tech.web.RetrofitFactory;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -87,8 +89,8 @@ public class MessageLogInFragment extends Fragment implements View.OnClickListen
                 if (response.body() != null) {
                     Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean("login_state", true);
-                    editor.putString("phoneNumber", phoneNumber);
+                    editor.putBoolean(Const.LOGIN_STATE, true);
+                    editor.putString(Const.PHONE_NUMBER, phoneNumber);
                     editor.apply();
                     requireActivity().onBackPressed();
                 } else {

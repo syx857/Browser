@@ -24,6 +24,7 @@ import com.tech.MyActivityResultContract;
 import com.tech.R;
 import com.tech.databinding.FragmentBookmarkEditBinding;
 import com.tech.domain.Bookmark;
+import com.tech.utils.Const;
 import com.tech.viewmodel.BookmarkViewModel;
 
 public class BookmarkEditFragment extends Fragment implements ContainerActivity.FragmentInterface{
@@ -74,7 +75,8 @@ public class BookmarkEditFragment extends Fragment implements ContainerActivity.
                 Bookmark newBookmark;
                 String newUrl = binding.editBookmarkUrl.getText().toString();
                 String newTitle = binding.editBookmarkTitle.getText().toString();
-                newBookmark = new Bookmark(newUrl, newTitle, sharedPreferences.getString("phoneNumber", ""));
+                newBookmark = new Bookmark(newUrl, newTitle, sharedPreferences.getString(
+                        Const.PHONE_NUMBER, ""));
                 bookmarkViewModel.update(bookmark, newBookmark);
                 navController.navigate(R.id.bookmarkFragment);
                 return true;

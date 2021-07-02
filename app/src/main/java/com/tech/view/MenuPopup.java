@@ -1,5 +1,6 @@
 package com.tech.view;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,18 +12,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 import com.tech.R;
 import com.tech.databinding.PopupMenuBinding;
+import com.tech.utils.Const;
 
 public class MenuPopup extends PopupWindow {
     PopupMenuBinding binding;
     MenuPopupCallback callback;
     boolean isBookmarked = false;
+    SharedPreferences sharedPreferences;
 
     public MenuPopup(AppCompatActivity activity, MenuPopupCallback cb) {
         super(activity);
+        sharedPreferences = activity.getSharedPreferences("user", Context.MODE_PRIVATE);
         callback = cb;
         binding = PopupMenuBinding.inflate(LayoutInflater.from(activity));
         initial();
         setupOnClick();
+        setLogin(sharedPreferences.getBoolean(Const.LOGIN_STATE, false));
     }
 
     void onClick(View view) {
@@ -61,5 +66,13 @@ public class MenuPopup extends PopupWindow {
 
     public interface MenuPopupCallback {
         void onClick(int id);
+    }
+
+    public void setLogin(boolean isLogin) {
+        if (isLogin) {
+            binding.navLogin.setImageResource(R.drawable.ic_nav_logged);
+        } else {
+            binding.navLogin.setImageResource(R.drawable.ic_nav_login);
+        }
     }
 }

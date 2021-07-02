@@ -21,6 +21,7 @@ import com.tech.R;
 import com.tech.api.UserApi;
 import com.tech.databinding.FragmentPasswordLoginBinding;
 import com.tech.domain.User;
+import com.tech.utils.Const;
 import com.tech.web.RetrofitFactory;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -86,8 +87,8 @@ public class PasswordLogInFragment extends Fragment implements View.OnClickListe
                         if (response.body() != null) {
                             Toast.makeText(v.getContext(), "登录成功", Toast.LENGTH_SHORT).show();
                             SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean("login_state", true);
-                            editor.putString("phoneNumber",
+                            editor.putBoolean(Const.LOGIN_STATE, true);
+                            editor.putString(Const.PHONE_NUMBER,
                                     binding.loginPhoneNumberEdit.getText().toString());
                             editor.apply();
                             requireActivity().onBackPressed();

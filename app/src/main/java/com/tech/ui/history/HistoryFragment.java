@@ -37,6 +37,7 @@ import com.tech.adapter.HistoryAdapter;
 import com.tech.databinding.FragmentHistoryBinding;
 import com.tech.domain.History;
 import com.tech.domain.User;
+import com.tech.utils.Const;
 import com.tech.viewmodel.HistoryViewModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,11 +65,11 @@ public class HistoryFragment extends Fragment implements AdapterView.OnItemClick
         sharedPreferences = requireActivity().getSharedPreferences("user", MODE_PRIVATE);
 
         viewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
-        if (sharedPreferences.getBoolean("login_state", false) && !sharedPreferences.getBoolean("loadHistory", false)) {
-            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false) && !sharedPreferences.getBoolean(Const.LOAD_HISTORY, false)) {
+            User user = new User(sharedPreferences.getString(Const.PHONE_NUMBER, ""));
             viewModel.loadHistoryListFromRemote(user);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("loadHistory", true);
+            editor.putBoolean(Const.LOAD_HISTORY, true);
             editor.apply();
         }
 

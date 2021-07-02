@@ -20,6 +20,7 @@
 
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowExitAnimation">@null</item>
 
     </style>
 

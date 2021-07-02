@@ -13,6 +13,7 @@ import com.tech.database.BrowserDatabase;
 import com.tech.domain.Bookmark;
 import com.tech.domain.BookmarkArray;
 import com.tech.domain.User;
+import com.tech.utils.Const;
 import com.tech.web.ResponseBody;
 import com.tech.web.RetrofitFactory;
 import java.util.ArrayList;
@@ -45,15 +46,13 @@ public class BookmarkRepository {
     }
 
     public void loadBookmarkListFromRemote(User user) {
-        deleteAll();
+        _deleteAll();
         bookmarkApi.getBookmark(user).enqueue(new Callback<BookmarkArray>() {
             @Override
             public void onResponse(Call<BookmarkArray> call, Response<BookmarkArray> response) {
                 if (response.body() != null) {
-                    Log.d("mytest", "获取书签列表成功");
                     _addBookmark(response.body().result.toArray(new Bookmark[0]));
                 } else {
-                    Log.d("mytest", "获取书签列表为空");
                 }
             }
 
@@ -73,7 +72,7 @@ public class BookmarkRepository {
             }
         }.execute();
 
-        if (sharedPreferences.getBoolean("login_state", false)){
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             bookmarkApi.deleteBookmark(new BookmarkArray(Arrays.asList(bookmark))).enqueue(
                     new Callback<ResponseBody>() {
                         @Override
@@ -90,7 +89,7 @@ public class BookmarkRepository {
         }
     }
 
-    public void deleteAll() {
+    public void _deleteAll() {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -98,13 +97,17 @@ public class BookmarkRepository {
                 return null;
             }
         }.execute();
+    }
 
-        if (sharedPreferences.getBoolean("login_state", false)){
-            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+    public void deleteAll() {
+        _deleteAll();
+
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
+            User user = new User(sharedPreferences.getString(Const.PHONE_NUMBER, ""));
             bookmarkApi.clearBookmark(user).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
+                    Log.d("mytest", "清空云书签");
                 }
 
                 @Override
@@ -124,7 +127,7 @@ public class BookmarkRepository {
             }
         }.execute();
 
-        if (sharedPreferences.getBoolean("login_state", false)){
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             bookmarkApi.addBookmark(bookmark).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -158,7 +161,7 @@ public class BookmarkRepository {
             }
         }.execute();
 
-        if (sharedPreferences.getBoolean("login_state", false)){
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             List<Bookmark> bookmarkList = new ArrayList<Bookmark>();
             bookmarkList.add(bookmark);
             bookmarkList.add(newBookmark);

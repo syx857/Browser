@@ -25,6 +25,7 @@ import com.tech.R;
 import com.tech.api.UserApi;
 import com.tech.databinding.FragmentRegisterBinding;
 import com.tech.domain.User;
+import com.tech.utils.Const;
 import com.tech.web.ResponseBody;
 import com.tech.web.RetrofitFactory;
 import retrofit2.Call;
@@ -87,8 +88,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 if (response.body().result) {
                     Toast.makeText(getContext(), "注册成功！", Toast.LENGTH_SHORT).show();
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean("login_state", true);
-                    editor.putString("phoneNumber", phoneNumber);
+                    editor.putBoolean(Const.LOGIN_STATE, true);
+                    editor.putString(Const.PHONE_NUMBER, phoneNumber);
                     editor.apply();
                     requireActivity().onBackPressed();
                 } else {

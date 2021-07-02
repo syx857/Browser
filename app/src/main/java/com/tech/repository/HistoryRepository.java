@@ -13,6 +13,7 @@ import com.tech.database.BrowserDatabase;
 import com.tech.domain.History;
 import com.tech.domain.HistoryArray;
 import com.tech.domain.User;
+import com.tech.utils.Const;
 import com.tech.web.ResponseBody;
 import com.tech.web.RetrofitFactory;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class HistoryRepository<AppDatabase> {
             }
         }.execute();
 
-        if (sharedPreferences.getBoolean("login_state", false)){
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             historyApi.addHistory(history).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -68,7 +69,7 @@ public class HistoryRepository<AppDatabase> {
             }
         }.execute();
 
-        if (sharedPreferences.getBoolean("login_state", false)){
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             historyApi.deleteHistory(new HistoryArray(Arrays.asList(history))).enqueue(
                     new Callback<ResponseBody>() {
                         @Override
@@ -98,7 +99,7 @@ public class HistoryRepository<AppDatabase> {
         return historyDao.findByUrlAndTitle(key);
     }
 
-    public void deleteAll() {
+    public void _deleteAll() {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -106,13 +107,17 @@ public class HistoryRepository<AppDatabase> {
                 return null;
             }
         }.execute();
+    }
 
-        if (sharedPreferences.getBoolean("login_state", false)){
-            User user = new User(sharedPreferences.getString("phoneNumber", ""));
+    public void deleteAll() {
+        _deleteAll();
+
+        if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
+            User user = new User(sharedPreferences.getString(Const.PHONE_NUMBER, ""));
             historyApi.clearHistory(user).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
+                    Log.d("mytest", "清空云历史");
                 }
 
                 @Override
@@ -124,7 +129,7 @@ public class HistoryRepository<AppDatabase> {
     }
 
     public void loadHistoryListFromRemote(User user) {
-        deleteAll();
+        _deleteAll();
         historyApi.getHistory(user).enqueue(new Callback<HistoryArray>() {
             @Override
             public void onResponse(Call<HistoryArray> call, Response<HistoryArray> response) {
