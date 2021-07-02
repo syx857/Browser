@@ -27,7 +27,7 @@ public class PhotoUtils {
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, generateFileName() + ".jpg");
         values.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM);
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/zhiWei");
         ContentResolver contentResolver = activity.getContentResolver();
         return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
     }
@@ -37,7 +37,7 @@ public class PhotoUtils {
     }
 
     public static void saveImage(Bitmap bitmap, Activity activity, Context context) {
-        File file = new File(activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+        File file = new File(activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES + "/zhiWei"),
                 PhotoUtils.generateFileName() + ".jpg");
         if (!file.exists()) {
             try {
