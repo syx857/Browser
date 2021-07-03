@@ -1,3 +1,2 @@
-include ':ucrop'
 rootProject.name = "tech browser"
 include ':app'

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,7 +21,6 @@ import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -35,11 +33,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import com.tech.databinding.ActivityMainBinding;
 import com.tech.domain.Bookmark;
 import com.tech.model.WebFragmentToken;
+import com.tech.ui.web.WebFragment;
 import com.tech.utils.Const;
 import com.tech.utils.PhotoUtils;
 import com.tech.view.MenuPopup;
@@ -103,8 +103,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
         binding.appBar.editText.addTextChangedListener(this);
         binding.appBar.editText.setOnFocusChangeListener(this::onFocusChange);
         binding.getRoot().setOnTouchListener(this::onTouch);
-        sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
 
+        sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
     }
 
@@ -210,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
     protected void onDestroy() {
         super.onDestroy();
         viewModel.clearFragmentManager();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
     public void onClick(View v) {
@@ -336,23 +337,19 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (binding.appBar.editText.isFocused()) {
-                clearEditTextFocus();
-            } else {
-                if (!goBackward()) {
-                    if (viewModel.getSize() == 1) {
-                        viewModel.removeFragment(viewModel.getCurrentTokenValue());
-                        finish();
-                    } else {
-                        viewModel.removeFragment(viewModel.getCurrentTokenValue());
-                    }
+    public void onBackPressed() {
+        if (binding.appBar.editText.isFocused()) {
+            clearEditTextFocus();
+        } else {
+            if (!goBackward()) {
+                if (viewModel.getSize() == 1) {
+                    viewModel.removeFragment(viewModel.getCurrentTokenValue());
+                    finish();
+                } else {
+                    viewModel.removeFragment(viewModel.getCurrentTokenValue());
                 }
             }
-            return true;
         }
-        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -502,9 +499,5 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
             return false;
         }
         return true;
-    }
-
-    public interface StateChangeInterface {
-        public void onLoginStateChange();
     }
 }

@@ -1,7 +1,6 @@
 package com.tech;
 
 import android.app.Application;
-import android.os.Message;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
@@ -59,7 +58,7 @@ public class MainViewModel extends AndroidViewModel {
         manager.addFragment();
     }
 
-    public void addFragment(Message msg) {
+    public void addFragment(Object msg) {
         manager.addFragment(msg);
     }
 
@@ -177,5 +176,9 @@ public class MainViewModel extends AndroidViewModel {
 
     public void insert(@NonNull History history) {
         //TODO
+    }
+
+    public WebFragment getCurrentFragment() {
+        return manager.getCurrentFragment();
     }
 }

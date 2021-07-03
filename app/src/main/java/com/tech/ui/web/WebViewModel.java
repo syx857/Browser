@@ -11,6 +11,7 @@ public class WebViewModel extends ViewModel {
     Bundle bundle;
     Message resultMsg;
     WebFragmentToken token;
+    Object pageJump;
 
     public WebViewModel() {
     }
@@ -37,5 +38,13 @@ public class WebViewModel extends ViewModel {
 
     public void setBundle(Bundle bundle) {
         this.bundle = bundle;
+    }
+
+    public Object getPageJump() {
+        return pageJump;
+    }
+
+    public void setPageJump(Object pageJump) {
+        this.pageJump = pageJump;
     }
 }

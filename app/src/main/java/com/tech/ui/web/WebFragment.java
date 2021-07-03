@@ -22,7 +22,6 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
@@ -39,7 +38,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
@@ -77,6 +75,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
      */
     View overlay;
     WebChromeClient.CustomViewCallback callback;
+    boolean clearHistory = false;
     /**
      * for full screen
      */
@@ -89,6 +88,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     WebFragmentToken token;
     String imageUrl;
     Bitmap bitmap = null;
+    WindowInsetsControllerCompat controller;
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
             String s = (String) msg.obj;
@@ -158,6 +158,12 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         binding.downloadImage.setOnClickListener(this::onClick);
         binding.editPhoto.setOnClickListener(this::onClick);
         return binding.getRoot();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        controller = ViewCompat.getWindowInsetsController(binding.getRoot());
     }
 
     private void onClick(View view) {
@@ -273,12 +279,19 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     }
 
     void load() {
-        if (webViewModel.getResultMsg() != null) {
-            Message resultMsg = webViewModel.getResultMsg();
-            WebView.WebViewTransport webViewTransport = (WebView.WebViewTransport) resultMsg.obj;
-            webViewTransport.setWebView(binding.webView);
-            resultMsg.sendToTarget();
-            webViewModel.setResultMsg(null);
+        if (webViewModel.getPageJump() != null) {
+            if (webViewModel.getPageJump() instanceof Message) {
+                Message resultMsg = (Message) webViewModel.getPageJump();
+                WebView.WebViewTransport webViewTransport = (WebView.WebViewTransport) resultMsg.obj;
+                webViewTransport.setWebView(binding.webView);
+                resultMsg.sendToTarget();
+            }
+            if (webViewModel.getPageJump() instanceof String) {
+                String url = (String) webViewModel.getPageJump();
+                binding.webView.loadUrl(url);
+            }
+            Log.d(TAG, "load: " + token.tag);
+            webViewModel.setPageJump(null);
             return;
         }
         if (webViewModel.getBundle() != null) {
@@ -297,6 +310,9 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     @JavascriptInterface
     public void homeSearch(String text) {
+        if(text.length() <= 0) {
+            return;
+        }
         Message msg = Message.obtain();
         msg.what = SEARCH;
         msg.obj = text;
@@ -360,7 +376,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     @Override
     public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback) {
         if (overlay != null) {
-            this.callback.onCustomViewHidden();
+            callback.onCustomViewHidden();
             return;
         }
         this.callback = callback;
@@ -385,49 +401,25 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
      */
     @Override
     public void onHideCustomView() {
+        showStatusBar();
         if (overlay == null) {
             return;
         }
         ((FrameLayout) requireActivity().getWindow().getDecorView()).removeView(overlay);
-        overlay = null;
         fullScreen();
-        showStatusBar();
+        overlay = null;
         callback.onCustomViewHidden();
         callback = null;
     }
 
     private void hideStatusBar() {
-        WindowInsetsControllerCompat controller = ViewCompat.getWindowInsetsController(binding.getRoot());
-        controller.hide(WindowInsetsCompat.Type.statusBars());
         controller.hide(WindowInsetsCompat.Type.systemBars());
         controller.setSystemBarsBehavior(
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 
     private void showStatusBar() {
-        WindowInsetsControllerCompat controller = ViewCompat.getWindowInsetsController(binding.getRoot());
-        controller.show(WindowInsetsCompat.Type.statusBars());
         controller.show(WindowInsetsCompat.Type.systemBars());
-    }
-
-    public void showSystemUI() {
-        Window window = requireActivity().getWindow();
-        View decorView = window.getDecorView();
-        WindowCompat.setDecorFitsSystemWindows(window, true);
-        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(
-                window, decorView);
-        insetsControllerCompat.show(WindowInsetsCompat.Type.systemBars());
-    }
-
-    public void hideSystemUI() {
-        Window window = requireActivity().getWindow();
-        View decorView = window.getDecorView();
-        WindowCompat.setDecorFitsSystemWindows(window, false);
-        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(
-                window, decorView);
-        insetsControllerCompat.hide(WindowInsetsCompat.Type.systemBars());
-        insetsControllerCompat.setSystemBarsBehavior(
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 
     @Override
@@ -488,12 +480,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        onHideCustomView();
-    }
-
-    @Override
     public void onPageStarted(String url, Bitmap favicon) {
         Log.d(TAG, "onPageStarted: url: " + url);
         if (url.equals("data:text/html; charset=UTF-8,")) {
@@ -515,6 +501,10 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     @Override
     public void onPageFinished(String url) {
         mainViewModel.setProgress(101);
+        if (clearHistory) {
+            binding.webView.clearHistory();
+            clearHistory = false;
+        }
     }
 
     @Override
@@ -589,9 +579,8 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     public void goHome() {
         binding.showWebPhoto.setVisibility(View.GONE);
-        binding.webView.stopLoading();
+        clearHistory = true;
         binding.webView.loadUrl(HOME);
-        binding.webView.clearHistory();
         if (token != null) {
             token.title = "首页";
             token.favicon = null;

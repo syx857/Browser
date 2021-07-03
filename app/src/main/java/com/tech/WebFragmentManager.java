@@ -85,7 +85,7 @@ public class WebFragmentManager {
      *
      * @param message 跳转信息
      */
-    public void addFragment(Message message) {
+    public void addFragment(Object message) {
         if (fm != null) {
             WebFragment webFragment = new WebFragment();
             WebFragment currentFragment = getCurrentFragment();
@@ -104,7 +104,7 @@ public class WebFragmentManager {
                 public void onCreate(@NonNull LifecycleOwner owner) {
                     WebViewModel viewModel = new ViewModelProvider(webFragment).get(WebViewModel.class);
                     viewModel.setToken(token);
-                    viewModel.setResultMsg(message);
+                    viewModel.setPageJump(message);
                     Log.d(TAG, "inject dependency: token: " + token);
                     webFragment.getLifecycle().removeObserver(this);
                 }
