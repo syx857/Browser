@@ -1,19 +1,25 @@
 package com.tech.ui.web;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.os.Message;
 
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.ViewModel;
 
 import com.tech.model.WebFragmentToken;
+import com.tech.repository.DownloadRepository;
 
-public class WebViewModel extends ViewModel {
+public class WebViewModel extends AndroidViewModel {
     Bundle bundle;
     Message resultMsg;
     WebFragmentToken token;
     Object pageJump;
+    DownloadRepository repository;
 
-    public WebViewModel() {
+    public WebViewModel(Application application) {
+        super(application);
+        repository = DownloadRepository.getInstance(application);
     }
 
     public Message getResultMsg() {
@@ -46,5 +52,9 @@ public class WebViewModel extends ViewModel {
 
     public void setPageJump(Object pageJump) {
         this.pageJump = pageJump;
+    }
+
+    public void startDownload(String url, String contentDisposition, String mimetype) {
+        repository.startDownload(url, contentDisposition, mimetype);
     }
 }

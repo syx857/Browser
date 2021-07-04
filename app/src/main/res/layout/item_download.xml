@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_ripple"
+    android:clickable="true">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_alignParentStart="true"
+        android:padding="10dp"
+        android:src="@drawable/ic_baseline_insert_drive_file_24"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/control"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="0dp"
+        android:background="@drawable/background_ripple"
+        android:clickable="true"
+        android:padding="10dp"
+        android:src="@drawable/ic_baseline_pause_24"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/filename"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_toStartOf="@id/control"
+        android:layout_toEndOf="@id/icon"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:minLines="1"
+        android:textAlignment="viewStart"
+        android:textColor="@color/textColor"
+        android:textSize="14sp"
+        tools:text="测试图片.jpg" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/filename"
+        android:layout_toStartOf="@id/control"
+        android:layout_toEndOf="@id/icon"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:minLines="1"
+        android:textAlignment="viewStart"
+        tools:text="34.66 KB http://test.com/test.jpg" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/icon"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="5dp"
+        android:layout_marginTop="3dp"
+        android:progress="30" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/progressBar"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="5dp"
+        android:ellipsize="start"
+        android:maxLines="1"
+        android:minLines="1"
+        android:textAlignment="viewEnd"
+        tools:text="12.77 KB / 34.66 KB" />
+
+</RelativeLayout>

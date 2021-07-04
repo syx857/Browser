@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -75,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
             if (menuPopup != null) {
                 if (key.equals(Const.LOGIN_STATE)) {
                     menuPopup.setLogin(sharedPreferences.getBoolean(key, false));
+                } else if (key.equals(Const.INCOGNITO)) {
+                    menuPopup.setIncognito(sharedPreferences.getBoolean(key, false));
                 }
             }
         }
@@ -278,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
     }
 
     public void menuClick(int id) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         switch(id) {
             case R.id.nav_add_bookmark:
                 if (!TextUtils.isEmpty(webFragmentToken.url) && !TextUtils
@@ -319,6 +323,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                     toContainerActivity(R.id.passwordLoginFragment);
                 }
                 break;
+            case R.id.nav_download:
+                menuPopup.dismiss();
+                toContainerActivity(R.id.downloadFragment);
+                break;
+            case R.id.nav_incognito:
+                menuPopup.dismiss();
+                editor.putBoolean(Const.INCOGNITO, !sharedPreferences.getBoolean(Const.INCOGNITO, false));
+                editor.apply();
+                break;
             default:
                 break;
 
@@ -332,8 +345,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
         editor.putBoolean(Const.LOAD_HISTORY, false);
         editor.putBoolean(Const.LOAD_BOOKMARK, false);
         editor.apply();
-        //bookmarkViewModel.deleteAll();
-        //historyViewModel.deleteAll();
     }
 
     @Override

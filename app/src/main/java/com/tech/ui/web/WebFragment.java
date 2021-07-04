@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -32,6 +30,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -61,6 +61,9 @@ import com.tech.utils.WebViewUtils;
 import com.tech.viewmodel.HistoryViewModel;
 import com.yalantis.ucrop.UCrop;
 import java.io.File;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         MyWebChromeClient.Callback {
@@ -70,6 +73,9 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     public static final int SEARCH = 0x33;
     public static final int SHOW = 0x11;
     public static final int MY_PERMISSIONS_REQUEST_SAVE_PICTURE = 0x22;
+
+    public static final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
     /**
      * for full screen
      */
@@ -80,6 +86,14 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
      * for full screen
      */
 
+    /**
+     * download
+     */
+    String downloadUrl;
+    String contentDisposition;
+    String mimetype;
+    ActivityResultLauncher<String[]> launcher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onActivityResult);
+
     SharedPreferences sharedPreferences;
     FragmentWebBinding binding;
     WebViewModel webViewModel;
@@ -88,7 +102,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     WebFragmentToken token;
     String imageUrl;
     Bitmap bitmap = null;
-    WindowInsetsControllerCompat controller;
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
             String s = (String) msg.obj;
@@ -158,12 +171,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         binding.downloadImage.setOnClickListener(this::onClick);
         binding.editPhoto.setOnClickListener(this::onClick);
         return binding.getRoot();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        controller = ViewCompat.getWindowInsetsController(binding.getRoot());
     }
 
     private void onClick(View view) {
@@ -271,13 +278,6 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
-    public void onDownloadStart(String url, String userAgent, String contentDisposition,
-            String mimetype, long contentLength) {
-        Log.d(TAG, "onDownloadStart: url: " + url + " userAgent: " + userAgent
-                + " contentDisposition: " + " mimetype: " + mimetype + contentDisposition
-                + " contentLength: " + contentLength);
-    }
-
     void load() {
         if (webViewModel.getPageJump() != null) {
             if (webViewModel.getPageJump() instanceof Message) {
@@ -310,7 +310,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     @JavascriptInterface
     public void homeSearch(String text) {
-        if(text.length() <= 0) {
+        if (text.length() <= 0) {
             return;
         }
         Message msg = Message.obtain();
@@ -384,16 +384,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         ((FrameLayout) requireActivity().getWindow().getDecorView()).addView(view,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
-        fullScreen();
-        hideStatusBar();
-    }
-
-    private void fullScreen() {
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+        hideStatusBar(overlay);
     }
 
     /**
@@ -401,25 +392,69 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
      */
     @Override
     public void onHideCustomView() {
-        showStatusBar();
         if (overlay == null) {
             return;
         }
         ((FrameLayout) requireActivity().getWindow().getDecorView()).removeView(overlay);
-        fullScreen();
+        showStatusBar();
         overlay = null;
         callback.onCustomViewHidden();
         callback = null;
     }
 
-    private void hideStatusBar() {
-        controller.hide(WindowInsetsCompat.Type.systemBars());
+    private void hideStatusBar(View view) {
+        WindowInsetsControllerCompat controller = ViewCompat
+                .getWindowInsetsController(view);
+        controller.hide(WindowInsetsCompat.Type.navigationBars());
+        controller.setAppearanceLightStatusBars(true);
         controller.setSystemBarsBehavior(
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 
     private void showStatusBar() {
-        controller.show(WindowInsetsCompat.Type.systemBars());
+        WindowInsetsControllerCompat controller = ViewCompat
+                .getWindowInsetsController(binding.getRoot());
+        controller.setAppearanceLightStatusBars(false);
+        controller.show(WindowInsetsCompat.Type.navigationBars());
+    }
+
+    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+        startDownload(url, contentDisposition, mimetype);
+    }
+
+    public void startDownload(String url, String contentDisposition, String mimetype) {
+        this.downloadUrl = url;
+        this.contentDisposition = contentDisposition;
+        this.mimetype = mimetype;
+        if (checkPermissions()) {
+            webViewModel.startDownload(url, contentDisposition, mimetype);
+            Toast.makeText(requireContext(), "开始下载", Toast.LENGTH_SHORT).show();
+        } else {
+            launcher.launch(PERMISSIONS);
+        }
+    }
+
+    public boolean checkPermissions() {
+        for (String p : PERMISSIONS) {
+            if (PackageManager.PERMISSION_GRANTED != requireContext().checkSelfPermission(p)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void onActivityResult(Map<String, Boolean> result) {
+        Set<Entry<String, Boolean>> set = result.entrySet();
+        for (Map.Entry<String, Boolean> entry : set) {
+            if (!entry.getValue()) {
+                Toast.makeText(requireContext(), "你拒绝提供下载权限，无法下载", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        if (downloadUrl != null) {
+            webViewModel.startDownload(downloadUrl, contentDisposition, mimetype);
+            Toast.makeText(requireContext(), "开始下载", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -516,7 +551,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     @Override
     public void addToHistory(String title, String url, long time) {
-        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getString("incognito", "false").equals("true")) {
+        if (sharedPreferences.getBoolean(Const.INCOGNITO, false)) {
             return;
         }
         if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(url)) {

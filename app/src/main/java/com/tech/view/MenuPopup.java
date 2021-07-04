@@ -28,6 +28,7 @@ public class MenuPopup extends PopupWindow {
         initial();
         setupOnClick();
         setLogin(sharedPreferences.getBoolean(Const.LOGIN_STATE, false));
+        setIncognito(sharedPreferences.getBoolean(Const.INCOGNITO, false));
     }
 
     void onClick(View view) {
@@ -62,6 +63,8 @@ public class MenuPopup extends PopupWindow {
         binding.navHistory.setOnClickListener(this::onClick);
         binding.navSetting.setOnClickListener(this::onClick);
         binding.navLogin.setOnClickListener(this::onClick);
+        binding.navDownload.setOnClickListener(this::onClick);
+        binding.navIncognito.setOnClickListener(this::onClick);
     }
 
     public interface MenuPopupCallback {
@@ -73,6 +76,14 @@ public class MenuPopup extends PopupWindow {
             binding.navLogin.setImageResource(R.drawable.ic_nav_logged);
         } else {
             binding.navLogin.setImageResource(R.drawable.ic_nav_login);
+        }
+    }
+
+    public void setIncognito(boolean isIncognito) {
+        if (isIncognito) {
+            binding.navIncognito.setImageResource(R.drawable.ic_nav_is_incognito);
+        } else {
+            binding.navIncognito.setImageResource(R.drawable.ic_nav_incognito);
         }
     }
 }

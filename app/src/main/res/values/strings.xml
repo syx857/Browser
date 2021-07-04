@@ -14,15 +14,4 @@
         <item>https://duckduckgo.com/?q=</item>
         <item>https://yandex.com/search/?text=</item>
     </string-array>
-    <string-array name="incognito_name">
-        <item>是</item>
-        <item>否</item>
-    </string-array>
-    <string-array name="incognito">
-        <item>true</item>
-        <item>false</item>
-    </string-array>
-    <array name="incognitos">
-        <item>true</item>
-    </array>
 </resources>

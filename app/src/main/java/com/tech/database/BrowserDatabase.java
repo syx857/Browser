@@ -6,13 +6,15 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import com.tech.dao.BookmarkDao;
+import com.tech.dao.DownloadDao;
 import com.tech.dao.HistoryDao;
 import com.tech.domain.Bookmark;
 import com.tech.domain.Converters;
+import com.tech.domain.DownloadHistory;
 import com.tech.domain.History;
 
 @Database(
-        entities = {Bookmark.class, History.class},
+        entities = {Bookmark.class, History.class, DownloadHistory.class},
         version = 1,
         exportSchema = false
 )
@@ -24,6 +26,8 @@ public abstract class BrowserDatabase extends RoomDatabase {
     public abstract BookmarkDao getBookMarkDao();
 
     public abstract HistoryDao getHistoryDao();
+
+    public abstract DownloadDao getDownloadDao();
 
     public static BrowserDatabase getInstance(final Context context) {
         if (database == null) {

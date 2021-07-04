@@ -49,6 +49,10 @@ public class ContainerActivity extends AppCompatActivity {
             controller.navigate(id);
             return;
         }
+        if (id == R.id.downloadFragment) {
+            controller.navigate(id);
+            return;
+        }
         finish();
     }
 
