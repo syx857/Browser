@@ -30,17 +30,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import com.tech.databinding.ActivityMainBinding;
 import com.tech.domain.Bookmark;
 import com.tech.model.WebFragmentToken;
-import com.tech.ui.web.WebFragment;
 import com.tech.utils.Const;
 import com.tech.utils.PhotoUtils;
 import com.tech.view.MenuPopup;
@@ -343,11 +340,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 break;
             case R.id.nav_share:
                 menuPopup.dismiss();
-
+                WebFragmentToken token = viewModel.getCurrentTokenValue();
+                if (token != null && !TextUtils.isEmpty(token.url)) {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, token.url);
+                    sendIntent.setType("text/plain");
+                    startActivity(Intent.createChooser(sendIntent, "分享"));
+                }
                 break;
             default:
                 break;
-
         }
     }
 
