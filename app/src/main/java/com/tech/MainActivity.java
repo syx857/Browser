@@ -115,13 +115,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
      */
     public void setTotalPage(int num) {
         Drawable drawable = ResourcesCompat
-                .getDrawable(getResources(), R.drawable.ic_baseline_crop_square_24, null);
+                .getDrawable(getResources(), R.drawable.ic_square, null);
         assert drawable != null;
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
                 drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.setTint(Color.rgb(117, 117, 117));
+        drawable.setTint(Color.rgb(0, 0, 0));
         drawable.draw(canvas);
         String str;
         if (num < 100) {
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
             str = "99+";
         }
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.rgb(117, 117, 117));
+        paint.setColor(Color.rgb(0, 0, 0));
         float scale = getResources().getDisplayMetrics().density;
         paint.setTextSize((int) (8 * scale));
         paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
