@@ -332,6 +332,19 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 editor.putBoolean(Const.INCOGNITO, !sharedPreferences.getBoolean(Const.INCOGNITO, false));
                 editor.apply();
                 break;
+            case R.id.nav_exit:
+                menuPopup.dismiss();
+                finish();
+                break;
+            case R.id.nav_refresh:
+                menuPopup.dismiss();
+                clearEditTextFocus();
+                viewModel.refresh();
+                break;
+            case R.id.nav_share:
+                menuPopup.dismiss();
+
+                break;
             default:
                 break;
 

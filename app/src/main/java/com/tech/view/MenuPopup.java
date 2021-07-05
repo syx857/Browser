@@ -65,6 +65,9 @@ public class MenuPopup extends PopupWindow {
         binding.navLogin.setOnClickListener(this::onClick);
         binding.navDownload.setOnClickListener(this::onClick);
         binding.navIncognito.setOnClickListener(this::onClick);
+        binding.navExit.setOnClickListener(this::onClick);
+        binding.navRefresh.setOnClickListener(this::onClick);
+        binding.navShare.setOnClickListener(this::onClick);
     }
 
     public interface MenuPopupCallback {
