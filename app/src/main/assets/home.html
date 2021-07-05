@@ -198,9 +198,10 @@
 				}
 			})()
 		}
-		
+
 		function jumpPage(){
-			window.open(`https://www.baidu.com/s?word=${encodeURI(searchInput.value)}`);
+			//window.open(`https://www.baidu.com/s?word=${encodeURI(searchInput.value)}`);
+			_TECH_BROWSER_.homeSearch(searchInput.value)
 		}
 		
 		searchBox.addEventListener("click",function(e){
