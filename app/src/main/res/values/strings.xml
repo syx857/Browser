@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">tech browser</string>
+    <string name="app_name">知微</string>
     <string-array name="search_engine_name">
         <item>百度</item>
         <item>谷歌</item>

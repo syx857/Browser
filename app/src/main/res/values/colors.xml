@@ -11,4 +11,5 @@
     <color name="urlColor">#2372DB</color>
     <color name="lightGray">#DCDCDC</color>
     <color name="gray">#FF666666</color>
+    <color name="appIcon">#FDC188</color>
 </resources>

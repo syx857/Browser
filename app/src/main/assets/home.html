@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-          name="viewport">
-    <title>首页</title>
-</head>
-<style type="text/css">
+	<head>
+		<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>搜索</title>
+	</head>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+		}
 		.container{
 			height: 90vh;
 			display: flex;
@@ -55,7 +57,7 @@
 		}
 		.image{
 			width: 90vw;
-			height: 50vh;
+			height: 40vh;
 		}
 		.image img{
 			object-fit: contain;
@@ -63,52 +65,96 @@
 			width: 100%;
 			height: 100%;
 		}
-
-
-
-
-
-</style>
-<body>
-<div class="container">
-    <div class="image">
-        <img src="photo.png">
-    </div>
-    <div class="search-box">
-        <input autofocus="autofocus" class="search-input-text" placeholder="关键词" type="text"
-               value=""/>
-        <input class="search-input-button" id="btn" type="button" value="搜索"/>
-        <div class="suggest">
-            <ul id="search-result">
-            </ul>
-        </div>
-    </div>
-</div>
-</body>
-<script type="text/javascript">
-		/*function getHtmlFontSize(){
-			let htmlWidth = document.documentElement.clientWidth || document.body.clientWidth;
-			console.log(htmlWidth);
-			
-			let htmlDom = document.getElementsByTagName("html")[0];
-			console.log(htmlDom);
-			
-			htmlDom.style.fontSize = htmlWidth/20 + 'px';
+		.news{
+			width: 90vw;
+			height: 100vh;
+			border: 1px solid #cccccc;
+			margin-top: 3vh;
+			padding-bottom: 5vh;
 		}
-		getHtmlFontSize();*/
-		//window.addEventListener('resize',getHtmlFontSize);
-		const suggestContainer = document.getElementsByClassName("suggest")[0];
-		const searchInput = document.getElementsByClassName("search-input-text")[0];
-		const searchBox = document.getElementsByClassName("search-box")[0];
-		const searchResult = document.getElementById("search-result");
-
+		.news h4{
+			color: #202026;
+			font-size: 3vh;
+			border-bottom: 1px solid #cccccc;
+			margin: 2vh 2vh 0 2vh;
+		}
+		.news a{
+			text-size: 5vh;
+			color: #333333;
+			text-decoration: none;
+			text-align: left;
+		}
+		.news li{
+			margin: 0 2vh 0 2vh;
+			height: 12vh;
+			line-height: 6vh;
+			border-bottom: 1px dashed #cccccc ; /*下边框虚线*/
+			text-indent: 3vw;/*首行缩进*/
+			list-style: none;
+			display: block;
+		}
+		
+		ul img{
+			object-fit: contain;
+			height: 12vh;
+			width: 12vh;
+			vertical-align: middle;
+		}
+	</style>
+	<body>
+		<div class="container">
+			<div class="image">
+				<img src="img/photo.png" >
+			</div>
+			<div class="search-box">
+				<input type="text" class="search-input-text" value="" autofocus="autofocus" placeholder="关键词" />
+				<input type="button" value="搜索" class="search-input-button" id="btn"/>
+				<div class="suggest">
+					<ul id="search-result">	
+					</ul>
+				</div>
+			</div>
+			<div class="news">
+				<h4>最新文章</h4>
+				 <ul>
+					<li>
+						<img src="img/didi.jpeg" >
+						<a href="https://www.toutiao.com/a6981075968173703687/?log_from=fb3ec2eee7234_1625454788868"> “滴滴出行”下架</a>
+					</li>
+					<li>
+						<img src="img/tuopin.jpeg" >
+						<a href="https://www.toutiao.com/a6980693256493335071/?log_from=40bf9c5652b96_1625454887232">习近平的小康故事</a>
+					</li>
+					<li>
+						<img src="img/yunnan.png" >
+						<a href="https://www.toutiao.com/a6981257347423601188/?log_from=845bc7c3337c1_1625455046764">云南瑞丽开展全员核酸检测</a>
+					</li>
+					<li>
+						<img src="img/lizhi.png" >
+						<a href="https://www.toutiao.com/a6981242010623541797/?log_from=33ce55545d464_1625458639397">中芯国际核心技术人员离职 </a>
+					</li>
+					<li>
+						<img src="img/book.jpg" >
+						<a href="https://www.toutiao.com/a6981249272402477581/?log_from=788909b82f2f8_1625462126972">课本里的共产党员</a>
+					</li>
+				 </ul>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var suggestContainer = document.getElementsByClassName("suggest")[0];
+		var searchInput = document.getElementsByClassName("search-input-text")[0];
+		var searchBox = document.getElementsByClassName("search-box")[0];
+		var searchResult = document.getElementById("search-result");
+		
 		function clearContent(){
-			const size = searchResult.childNodes.length;
-			for(let i = size - 1; i >= 0; i--){
+			var size = searchResult.childNodes.length;
+			for(var i = size - 1;i >= 0;i--){
 				searchResult.removeChild(searchResult.childNodes[i]);
 			}
 			//suggestContainer.style.display = 'none';
-		}
+		};
+		var timer = null;
 		searchInput.onkeyup = function(e){
 			suggestContainer.style.display = "block";
 			
@@ -121,7 +167,7 @@
 			}
 			if(e.keyCode !== 40 && e.keyCode !== 38){
 				this.timer = setTimeout(() => {
-					const script = document.createElement("script");
+					var script = document.createElement("script");
 					script.src = "https://www.baidu.com/su?&wd=" + encodeURI(this.value.trim()) + 
 					"&p=3&cb=handleSuggestion";
 					document.body.appendChild(script);
@@ -131,47 +177,45 @@
 		function handleSuggestion(res){
 			//返回的结果是以一个对象的形式返回的,q 对应检索关键词，s对应返回的结果(数组形式)
 			clearContent();
-			let result = res.s;
+			var result = res.s;
 			if(result.length > 4){
 				result = result.slice(0,5)
 			}
 			for(let i = 0; i < result.length;i++){
-				const liObj = document.createElement("li");
+				var liObj = document.createElement("li");
 				liObj.innerHTML = result[i];
 				searchResult.appendChild(liObj);
 			}
 			(function(){
-				const s = document.querySelectorAll('script');
-				let len = s.length;
-				for(let i = 1; i < len; i++){
+				var s = document.querySelectorAll('script');
+				for(var i = 1,len = s.length;i < len;i++){
 					document.body.removeChild(s[i]);
 				}
 			})()
 		}
 		
 		function jumpPage(){
-			//window.open(`https://www.baidu.com/s?word=${encodeURI(searchInput.value)}`);
-			_TECH_BROWSER_.homeSearch(searchInput.value)
+			window.open(`https://www.baidu.com/s?word=${encodeURI(searchInput.value)}`);
 		}
 		
 		searchBox.addEventListener("click",function(e){
 			if(e.target.nodeName.toLowerCase()==='li'){
-				const keywords = e.target.innerText;
+				var keywords = e.target.innerText;
 				searchInput.value = keywords;
 				jumpPage();
 			}else if(e.target.id === 'btn'){
 				jumpPage();
 			}
 		},false);
-
-		let i = 0;
-		let flag = 1;
-
+		
+		var i = 0;
+		var flag = 1;
+		
 		searchBox.addEventListener("keydown",function(e){
-			const size = searchResult.childNodes.length;
+			var size = searchResult.childNodes.length;
 			if(e.keyCode === 13){
 				jumpPage();
-			}
+			};
 			if(e.keyCode === 40){
 				if(flag === 0){
 					i = i + 2;
@@ -184,16 +228,11 @@
 				if(i > -1){
 					searchInput.value = searchResult.childNodes[i--].innerText;
 				}
-			}
+			};
 			document.onclick = function(){
 				clearContent();
 				suggestContainer.style.display = 'none';
 			}
 		},false)
-
-
-
-
-
-</script>
+	</script>
 </html>
