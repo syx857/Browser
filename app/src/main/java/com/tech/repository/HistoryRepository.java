@@ -18,6 +18,8 @@ import com.tech.web.ResponseBody;
 import com.tech.web.RetrofitFactory;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,6 +30,7 @@ public class HistoryRepository<AppDatabase> {
     BrowserDatabase appDatabase;
     HistoryApi historyApi;
     SharedPreferences sharedPreferences;
+    ExecutorService service = Executors.newCachedThreadPool();
 
     public HistoryRepository(Context context) {
         appDatabase = BrowserDatabase.getInstance(context);
@@ -37,13 +40,7 @@ public class HistoryRepository<AppDatabase> {
     }
 
     public void addHistory(History history) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                historyDao.insertHistory(history);
-                return null;
-            }
-        }.execute();
+        service.submit(() -> historyDao.insertHistory(history));
 
         if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             historyApi.addHistory(history).enqueue(new Callback<ResponseBody>() {
@@ -61,13 +58,7 @@ public class HistoryRepository<AppDatabase> {
     }
 
     public void deleteHistory(History... history) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                historyDao.deleteHistory(history);
-                return null;
-            }
-        }.execute();
+        service.submit(() -> historyDao.deleteHistory(history));
 
         if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             historyApi.deleteHistory(new HistoryArray(Arrays.asList(history))).enqueue(
@@ -100,13 +91,7 @@ public class HistoryRepository<AppDatabase> {
     }
 
     public void _deleteAll() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                historyDao.deleteAll();
-                return null;
-            }
-        }.execute();
+        service.submit(() -> historyDao.deleteAll());
     }
 
     public void deleteAll() {
@@ -149,12 +134,6 @@ public class HistoryRepository<AppDatabase> {
     }
 
     public void _addHistory(History... histories) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                historyDao.addHistory(histories);
-                return null;
-            }
-        }.execute();
+        service.submit(() -> historyDao.addHistory(histories));
     }
 }

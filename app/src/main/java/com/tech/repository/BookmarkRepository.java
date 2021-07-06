@@ -19,6 +19,8 @@ import com.tech.web.RetrofitFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,6 +31,7 @@ public class BookmarkRepository {
     BrowserDatabase appDatabase;
     BookmarkApi bookmarkApi;
     SharedPreferences sharedPreferences;
+    ExecutorService service = Executors.newCachedThreadPool();
 
     public BookmarkRepository(Context context) {
         appDatabase = BrowserDatabase.getInstance(context);
@@ -64,13 +67,7 @@ public class BookmarkRepository {
     }
 
     public void deleteBookmark(Bookmark... bookmark) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                bookmarkDao.deleteBookmark(bookmark);
-                return null;
-            }
-        }.execute();
+        service.submit(() -> bookmarkDao.deleteBookmark(bookmark));
 
         if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             bookmarkApi.deleteBookmark(new BookmarkArray(Arrays.asList(bookmark))).enqueue(
@@ -90,13 +87,7 @@ public class BookmarkRepository {
     }
 
     public void _deleteAll() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                bookmarkDao.deleteAll();
-                return null;
-            }
-        }.execute();
+        service.submit(() -> bookmarkDao.deleteAll());
     }
 
     public void deleteAll() {
@@ -119,13 +110,7 @@ public class BookmarkRepository {
     }
 
     public void addBookmark(Bookmark bookmark) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                bookmarkDao.insertBookmark(bookmark);
-                return null;
-            }
-        }.execute();
+        service.submit(() -> bookmarkDao.insertBookmark(bookmark));
 
         if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             bookmarkApi.addBookmark(bookmark).enqueue(new Callback<ResponseBody>() {
@@ -143,23 +128,11 @@ public class BookmarkRepository {
     }
 
     public void _addBookmark(Bookmark... bookmark) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                bookmarkDao.addBookmark(bookmark);
-                return null;
-            }
-        }.execute();
+        service.submit(() -> bookmarkDao.addBookmark(bookmark));
     }
 
     public void update(Bookmark bookmark, Bookmark newBookmark) {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                bookmarkDao.update(bookmark, newBookmark);
-                return null;
-            }
-        }.execute();
+        service.submit(() -> bookmarkDao.update(bookmark, newBookmark));
 
         if (sharedPreferences.getBoolean(Const.LOGIN_STATE, false)){
             List<Bookmark> bookmarkList = new ArrayList<Bookmark>();
