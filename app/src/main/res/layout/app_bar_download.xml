@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="5dp"
+    android:background="@color/white"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     tools:showIn="@layout/fragment_download">
 
@@ -30,6 +31,7 @@
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/back"
             android:text="下载"
+            android:background="@color/white"
             android:textColor="@color/textColor"
             android:textSize="20sp" />
 

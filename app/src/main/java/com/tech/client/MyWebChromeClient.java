@@ -1,5 +1,7 @@
 package com.tech.client;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Message;
 import android.util.Log;
@@ -8,6 +10,8 @@ import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import com.tech.utils.Const;
+import com.tech.utils.JsUtils;
 
 public class MyWebChromeClient extends WebChromeClient {
     public static final String TAG = "MyWebChromeClient";

@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.TokenViewHolder> {
     static final int SELECTED_TEXT = Color.rgb(35, 114, 219);
-    static final int UNSELECTED_TEXT = Color.rgb(32, 33, 37);
+    static final int UNSELECTED_TEXT = Color.rgb(117, 117, 117);
     static final int SELECTED_IMG = Color.rgb(35, 114, 219);
     static final int UNSELECTED_IMG = Color.rgb(117, 117, 117);
 

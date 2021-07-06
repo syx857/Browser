@@ -10,11 +10,13 @@
 			padding: 0;
 		}
 		.container{
-			height: 90vh;
+			width: 100vw;
+			height: 100vh;
 			display: flex;
 			justify-content: flex-start;
 			align-items: center;
 			flex-direction: column;
+			overflow: hidden;
 		}
 		.search-box{
 			position: relative;
@@ -67,11 +69,10 @@
 		}
 		.news{
 			width: 90vw;
-			height: 50vh;
+			height: 47vh;
 			border: 1px solid #cccccc;
 			margin-top: 3vh;
-			padding-bottom: 5vh;
-			overflow: auto;
+			overflow: scroll;
 		}
 		.news h4{
 			color: #202026;
@@ -94,7 +95,6 @@
 			list-style: none;
 			display: block;
 		}
-		
 		ul img{
 			object-fit: contain;
 			height: 12vh;
@@ -198,7 +198,7 @@
 				}
 			})()
 		}
-
+		
 		function jumpPage(){
 			//window.open(`https://www.baidu.com/s?word=${encodeURI(searchInput.value)}`);
 			_TECH_BROWSER_.homeSearch(searchInput.value)

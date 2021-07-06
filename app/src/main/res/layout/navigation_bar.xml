@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:background="@color/white"
     tools:showIn="@layout/activity_main">
 
     <ImageView
@@ -42,7 +43,7 @@
         android:src="@drawable/ic_home"
         tools:ignore="ContentDescription" />
 
-    <ImageView
+    <FrameLayout
         android:id="@+id/page"
         android:layout_width="0dp"
         android:layout_height="40dp"
@@ -52,7 +53,27 @@
         android:background="@drawable/background_ripple"
         android:onClick="onClick"
         android:src="@drawable/ic_square"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription">
+        <ImageView
+            android:id="@+id/page_square"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_square"
+            tools:ignore="ContentDescription" />
+        <TextView
+            android:id="@+id/page_count"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:background="@android:color/transparent"
+            android:text="1"
+            android:textColor="@color/textColor"
+            />
+    </FrameLayout>
+
 
     <ImageView
         android:id="@+id/menu"

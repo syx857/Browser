@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -75,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                     menuPopup.setLogin(sharedPreferences.getBoolean(key, false));
                 } else if (key.equals(Const.INCOGNITO)) {
                     menuPopup.setIncognito(sharedPreferences.getBoolean(key, false));
+                } else if (key.equals(Const.NIGHT_MODE)) {
+                    menuPopup.setNightMode(sharedPreferences.getBoolean(key, false));
                 }
             }
         }
@@ -114,32 +117,13 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
      * @param num 页数
      */
     public void setTotalPage(int num) {
-        Drawable drawable = ResourcesCompat
-                .getDrawable(getResources(), R.drawable.ic_square, null);
-        assert drawable != null;
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.setTint(Color.rgb(0, 0, 0));
-        drawable.draw(canvas);
-        String str;
+        String str = "1";
         if (num < 100) {
             str = "" + num;
         } else {
             str = "99+";
         }
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.rgb(0, 0, 0));
-        float scale = getResources().getDisplayMetrics().density;
-        paint.setTextSize((int) (8 * scale));
-        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
-        Rect bounds = new Rect();
-        paint.getTextBounds(str, 0, str.length(), bounds);
-        int x = (bitmap.getWidth() - bounds.width()) / 2;
-        int y = (bitmap.getHeight() + bounds.height()) / 2;
-        canvas.drawText(str, x, y, paint);
-        binding.navigationBar.page.setImageBitmap(bitmap);
+        binding.navigationBar.pageCount.setText(str);
     }
 
     /**
@@ -333,10 +317,17 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 menuPopup.dismiss();
                 finish();
                 break;
-            case R.id.nav_refresh:
+            case R.id.nav_night_mode:
                 menuPopup.dismiss();
-                clearEditTextFocus();
-                viewModel.refresh();
+                boolean isNight = sharedPreferences.getBoolean(Const.NIGHT_MODE, false);
+                if (isNight) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                }
+                editor.putBoolean(Const.NIGHT_MODE, !isNight);
+                editor.apply();
+                recreate();
                 break;
             case R.id.nav_share:
                 menuPopup.dismiss();
@@ -351,6 +342,15 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 break;
             default:
                 break;
+        }
+    }
+
+    public void nightMode() {
+        boolean isNight = sharedPreferences.getBoolean(Const.NIGHT_MODE, false);
+        if (isNight) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
     }
 

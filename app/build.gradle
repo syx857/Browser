@@ -86,7 +86,7 @@ dependencies {
 
     //图片旋转/缩放
     implementation 'com.bm.photoview:library:1.4.1'
-    
+
     //图片裁剪
     implementation 'com.joker.HuanTanSheng:EasyPhotos:andX-2.5.6'
 }

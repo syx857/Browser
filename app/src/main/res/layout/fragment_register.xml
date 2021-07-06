@@ -47,6 +47,7 @@
             android:id="@+id/register_send_cord"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
+            android:background="@color/white"
             android:textColor="@color/textColor"
             android:text="发送验证码" />
     </LinearLayout>
@@ -69,6 +70,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/register_vcode_edit"
         android:textColor="@color/textColor"
+        android:background="@color/white"
         android:text="注册" />
 
 </RelativeLayout>

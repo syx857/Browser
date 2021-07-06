@@ -1,11 +1,16 @@
 package com.tech.client;
 
 import android.graphics.Bitmap;
+import android.util.Base64;
 import android.util.Log;
 import android.webkit.WebHistoryItem;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import com.tech.R;
+import com.tech.utils.JsUtils;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MyWebViewClient extends WebViewClient {
 
@@ -24,6 +29,7 @@ public class MyWebViewClient extends WebViewClient {
             callback.onPageStarted(url, favicon);
         }
         isLoad = true;
+        JsUtils.addNightMode(view);
     }
 
     @Override
@@ -36,6 +42,7 @@ public class MyWebViewClient extends WebViewClient {
             addToHistory(view);
         }
         addImageClickListener(view);
+        JsUtils.addNightMode(view);
     }
 
     /**

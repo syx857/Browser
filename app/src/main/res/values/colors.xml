@@ -12,4 +12,5 @@
     <color name="lightGray">#DCDCDC</color>
     <color name="gray">#FF666666</color>
     <color name="appIcon">#FDC188</color>
+    <color name="searchBackground">#F2F3F5</color>
 </resources>
