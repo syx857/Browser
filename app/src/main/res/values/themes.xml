@@ -19,13 +19,17 @@
         <item name="buttonBarNegativeButtonStyle">@style/negativeBtnstyle</item>
 
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowExitAnimation">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Toast</item>
 
     </style>
 
     <style name="positiveBtnStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">#00F</item>
+    </style>
+
+    <style name="night_mode">
+        <item name="android:windowExitAnimation">@anim/activity_hide</item>
+        <item name="android:windowEnterAnimation">@anim/activity_show</item>
     </style>
 
     <style name="negativeBtnstyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">

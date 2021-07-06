@@ -2,16 +2,13 @@ package com.tech;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.UiModeManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,7 +30,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import com.tech.databinding.ActivityMainBinding;
@@ -64,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
     SharedPreferences sharedPreferences;
     HistoryViewModel historyViewModel;
     Bitmap bitmap;
+    UiModeManager mUiModeManager;
 
     ActivityResultLauncher<Integer> launcher = registerForActivityResult(
             new MyActivityResultContract(), this::onActivityResult);
@@ -109,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
 
         sharedPreferences = getSharedPreferences("user", MODE_PRIVATE);
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
+        mUiModeManager = (UiModeManager) getSystemService(Context.UI_MODE_SERVICE);
     }
 
     /**
@@ -322,8 +320,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 boolean isNight = sharedPreferences.getBoolean(Const.NIGHT_MODE, false);
                 if (isNight) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    getDelegate().applyDayNight();
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    getDelegate().applyDayNight();
                 }
                 editor.putBoolean(Const.NIGHT_MODE, !isNight);
                 editor.apply();
