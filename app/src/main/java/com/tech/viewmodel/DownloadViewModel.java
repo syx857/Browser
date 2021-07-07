@@ -2,6 +2,7 @@ package com.tech.viewmodel;
 
 import android.app.Application;
 
+import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
@@ -18,5 +19,9 @@ public class DownloadViewModel extends AndroidViewModel {
 
     public DownloadHistoryAdapter getAdapter() {
         return repository.getAdapter();
+    }
+
+    public Uri getFileUri(long id) {
+        return repository.getFileUri(id);
     }
 }

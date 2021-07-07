@@ -41,6 +41,20 @@ public class DownloadUtils {
         return new DownloadHistory(id, filename, url, mimetype);
     }
 
+    public static Uri getFileUri(long id, DownloadManager manager) {
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterById(id);
+        Cursor cursor = manager.query(query);
+        String string;
+        if (cursor != null && cursor.moveToFirst()) {
+            string = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+            if (string != null) {
+                return Uri.parse(string);
+            }
+        }
+        return null;
+    }
+
     /**
      * 删除下载文件
      *

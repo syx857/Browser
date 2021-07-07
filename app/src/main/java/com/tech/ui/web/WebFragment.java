@@ -1,6 +1,8 @@
 package com.tech.ui.web;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -18,6 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -49,6 +52,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.tech.MainViewModel;
+import com.tech.R;
 import com.tech.adapter.ViewPagerAdapter;
 import com.tech.client.MyWebChromeClient;
 import com.tech.client.MyWebViewClient;
@@ -102,6 +106,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     WebFragmentToken token;
     String imageUrl;
     Bitmap bitmap = null;
+    String url = null;
     Handler handler = new Handler(Looper.getMainLooper(), msg -> {
         if (msg.what == SEARCH) {
             String s = (String) msg.obj;
@@ -163,7 +168,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         binding.webView.setWebViewClient(new MyWebViewClient(this));
         binding.webView.setWebChromeClient(new MyWebChromeClient(this));
         binding.webView.setDownloadListener(this::onDownloadStart);
-        //binding.webView.setOnCreateContextMenuListener(this::webViewOnCreateContextMenu);
+        registerForContextMenu(binding.webView);
         token = webViewModel.getToken();
         load();
         initial();
@@ -247,8 +252,8 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
             switch (hitTestResult.getType()) {
                 case WebView.HitTestResult.SRC_ANCHOR_TYPE:
                     Log.d(TAG, "webViewOnCreateContextMenu: SRC_ANCHOR_TYPE " + str);
-                    //requireActivity().getMenuInflater().inflate();
-                    //TODO is url
+                    url = str;
+                    requireActivity().getMenuInflater().inflate(R.menu.menu_src_anchor, menu);
                     return;
                 case WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE:
                     Log.d(TAG, "webViewOnCreateContextMenu: SRC_IMAGE_ANCHOR_TYPE " + str);
@@ -469,6 +474,27 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         builder.setOnCancelListener(dialog -> result.cancel());
         builder.create().show();
         return true;
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        Log.d(TAG, "onContextItemSelected: ");
+        if (item.getItemId() == R.id.open_new_page && url != null) {
+            mainViewModel.addFragment(url);
+            return true;
+        }
+        if (item.getItemId() == R.id.copy_url && url != null) {
+            saveToClipboard(url);
+            Toast.makeText(requireActivity(), "复制成功", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    public void saveToClipboard(String s) {
+        ClipboardManager cm = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData mClipData = ClipData.newPlainText("网页链接", s);
+        cm.setPrimaryClip(mClipData);
     }
 
     @Override

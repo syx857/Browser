@@ -26,9 +26,15 @@ public class DownloadHistoryAdapter extends RecyclerView.Adapter<DownloadHistory
     Callback callback;
     Context context;
 
+    OnClickListener listener;
+
     public DownloadHistoryAdapter(List<DownloadHistory> list, Callback callback) {
         this.list = list;
         this.callback = callback;
+    }
+
+    public void setListener(OnClickListener listener) {
+        this.listener = listener;
     }
 
     public void setContext(Context context) {
@@ -50,6 +56,10 @@ public class DownloadHistoryAdapter extends RecyclerView.Adapter<DownloadHistory
     @Override
     public int getItemCount() {
         return list.size();
+    }
+
+    public interface OnClickListener {
+        void onClick(DownloadHistory downloadHistory);
     }
 
     public interface Callback {
@@ -143,6 +153,7 @@ public class DownloadHistoryAdapter extends RecyclerView.Adapter<DownloadHistory
                     break;
             }
             binding.text.setText(text);
+            binding.getRoot().setOnClickListener(this::onClick);
         }
 
         public boolean onLongClick(View v) {
@@ -160,6 +171,9 @@ public class DownloadHistoryAdapter extends RecyclerView.Adapter<DownloadHistory
                 if (downloadHistory.status == DownloadManager.STATUS_PAUSED) {
                     callback.resume(downloadHistory);
                 }
+            }
+            if (v == binding.getRoot() && downloadHistory.status == DownloadManager.STATUS_SUCCESSFUL && listener != null) {
+                listener.onClick(downloadHistory);
             }
         }
 

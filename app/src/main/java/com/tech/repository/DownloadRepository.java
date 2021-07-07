@@ -4,6 +4,7 @@ import android.app.Application;
 import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -54,6 +55,10 @@ public class DownloadRepository implements DownloadHistoryAdapter.Callback {
         manager = (DownloadManager) application.getSystemService(Context.DOWNLOAD_SERVICE);
         adapter = new DownloadHistoryAdapter(list, this);
         initial();
+    }
+
+    public Uri getFileUri(long id) {
+        return DownloadUtils.getFileUri(id, manager);
     }
 
     public static DownloadRepository getInstance(Application application) {

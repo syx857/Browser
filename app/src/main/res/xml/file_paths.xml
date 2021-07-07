@@ -13,6 +13,10 @@
     <external-path
         name="external_pic"
         path="externalPic" />
+
+    <external-path
+        name="download"
+        path="Download/" />
     <!--该方式对应Context.getExternalFilesDir()返回的路径-->
     <external-files-path
         name="external_file_pic"
