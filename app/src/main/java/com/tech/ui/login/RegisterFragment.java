@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -39,17 +40,13 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     EventHandler eventHandler;
     String phoneNumber;
     private String vcode;
-    MyHandler handler = new MyHandler();
     NavController navController;
     boolean isVerified = false;
     SharedPreferences sharedPreferences;
 
-    class MyHandler extends Handler {
-
+    Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            super.handleMessage(msg);
+        public boolean handleMessage(@NonNull Message msg) {
             int event = msg.arg1;
             int result = msg.arg2;
             Object data = msg.obj;
@@ -72,8 +69,9 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
             } else {
                 Toast.makeText(getContext(), "未知错误", Toast.LENGTH_LONG).show();
             }
+            return true;
         }
-    }
+    });
 
     public void gotoRegister() {
         if (!confirm() || !isVerified) {

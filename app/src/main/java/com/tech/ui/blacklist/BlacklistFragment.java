@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -52,7 +53,6 @@ public class BlacklistFragment extends Fragment implements ContainerActivity.Fra
             controller.navigateUp();
         } else if (v == binding.confirmBlackDomain) {
             save();
-            show();
         }
     }
 
@@ -62,7 +62,7 @@ public class BlacklistFragment extends Fragment implements ContainerActivity.Fra
             builder.append(s);
             builder.append("\n");
         });
-        binding.blackList.setText(builder.toString());
+        binding.edit.setText(builder.toString());
     }
 
     public void save() {
@@ -71,6 +71,7 @@ public class BlacklistFragment extends Fragment implements ContainerActivity.Fra
             BufferedReader reader = new BufferedReader(new StringReader(string));
             String[] strings = reader.lines().toArray(String[]::new);
             reader.close();
+            hashSet.clear();
             for (String s : strings) {
                 String temp = s.trim();
                 if (temp.length() > 0) {
@@ -78,6 +79,7 @@ public class BlacklistFragment extends Fragment implements ContainerActivity.Fra
                 }
             }
             preferences.edit().putStringSet("blacklist", hashSet).apply();
+            Toast.makeText(getContext(), "黑名单已保存", Toast.LENGTH_SHORT).show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -87,7 +89,6 @@ public class BlacklistFragment extends Fragment implements ContainerActivity.Fra
     @Override
     public void onPause() {
         super.onPause();
-        //save();
     }
 
     @Override

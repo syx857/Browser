@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -41,17 +42,13 @@ public class MessageLogInFragment extends Fragment implements View.OnClickListen
     NavController navController;
     SharedPreferences sharedPreferences;
     boolean isVerified = false;
-    MyHandler handler = new MyHandler();
     private String cord;
     EventHandler eventHandler;
     String phoneNumber;
 
-    class MyHandler extends Handler {
-
+    Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            super.handleMessage(msg);
+        public boolean handleMessage(@NonNull Message msg) {
             int event = msg.arg1;
             int result = msg.arg2;
             Object data = msg.obj;
@@ -74,8 +71,9 @@ public class MessageLogInFragment extends Fragment implements View.OnClickListen
             } else {
                 Toast.makeText(getContext(), "未知错误", Toast.LENGTH_LONG).show();
             }
+            return true;
         }
-    }
+    });
 
     public void gotoLogin() {
         if (!isVerified) {
