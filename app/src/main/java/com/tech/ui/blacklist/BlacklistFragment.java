@@ -71,7 +71,6 @@ public class BlacklistFragment extends Fragment implements ContainerActivity.Fra
             BufferedReader reader = new BufferedReader(new StringReader(string));
             String[] strings = reader.lines().toArray(String[]::new);
             reader.close();
-            hashSet.clear();
             for (String s : strings) {
                 String temp = s.trim();
                 if (temp.length() > 0) {
