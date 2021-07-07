@@ -73,8 +73,6 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                     menuPopup.setLogin(sharedPreferences.getBoolean(key, false));
                 } else if (key.equals(Const.INCOGNITO)) {
                     menuPopup.setIncognito(sharedPreferences.getBoolean(key, false));
-                } else if (key.equals(Const.NIGHT_MODE)) {
-                    menuPopup.setNightMode(sharedPreferences.getBoolean(key, false));
                 }
             }
         }
@@ -315,19 +313,10 @@ public class MainActivity extends AppCompatActivity implements TextWatcher,
                 menuPopup.dismiss();
                 finish();
                 break;
-            case R.id.nav_night_mode:
+            case R.id.nav_refresh:
                 menuPopup.dismiss();
-                boolean isNight = sharedPreferences.getBoolean(Const.NIGHT_MODE, false);
-                if (isNight) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    getDelegate().applyDayNight();
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    getDelegate().applyDayNight();
-                }
-                editor.putBoolean(Const.NIGHT_MODE, !isNight);
-                editor.apply();
-                recreate();
+                clearEditTextFocus();
+                viewModel.refresh();
                 break;
             case R.id.nav_share:
                 menuPopup.dismiss();

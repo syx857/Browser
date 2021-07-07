@@ -30,7 +30,6 @@ public class MenuPopup extends PopupWindow {
         setupOnClick();
         setLogin(sharedPreferences.getBoolean(Const.LOGIN_STATE, false));
         setIncognito(sharedPreferences.getBoolean(Const.INCOGNITO, false));
-        setNightMode(sharedPreferences.getBoolean(Const.NIGHT_MODE, false));
     }
 
     void onClick(View view) {
@@ -68,7 +67,7 @@ public class MenuPopup extends PopupWindow {
         binding.navDownload.setOnClickListener(this::onClick);
         binding.navIncognito.setOnClickListener(this::onClick);
         binding.navExit.setOnClickListener(this::onClick);
-        binding.navNightMode.setOnClickListener(this::onClick);
+        binding.navRefresh.setOnClickListener(this::onClick);
         binding.navShare.setOnClickListener(this::onClick);
     }
 
@@ -89,14 +88,6 @@ public class MenuPopup extends PopupWindow {
             binding.navIncognito.setImageResource(R.drawable.ic_nav_is_incognito);
         } else {
             binding.navIncognito.setImageResource(R.drawable.ic_nav_incognito);
-        }
-    }
-
-    public void setNightMode(boolean isNightMode) {
-        if (isNightMode) {
-            binding.navNightMode.setImageResource(R.drawable.ic_nav_is_night_mode);
-        } else {
-            binding.navNightMode.setImageResource(R.drawable.ic_nav_night_mode);
         }
     }
 }

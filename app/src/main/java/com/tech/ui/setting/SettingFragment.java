@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.tech.R;
@@ -36,12 +39,24 @@ public class SettingFragment extends Fragment {
     }
 
     public static class ContentFragment extends PreferenceFragmentCompat {
+        NavController controller;
         public static final String TAG = "ContentFragment";
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             Log.d(TAG, "onCreatePreferences: " + rootKey);
             setPreferencesFromResource(R.xml.preference_setting, rootKey);
+            controller = Navigation.findNavController(requireActivity(), R.id.container);
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(Preference preference) {
+            String key = preference.getKey();
+            if (key.equals("blacklist")) {
+                controller.navigate(R.id.blacklistFragment);
+                return true;
+            }
+            return super.onPreferenceTreeClick(preference);
         }
     }
 }

@@ -57,13 +57,13 @@
             android:scaleType="fitCenter"/>
 
         <ImageView
-            android:id="@+id/nav_night_mode"
+            android:id="@+id/nav_refresh"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="5dp"
             android:clickable="true"
-            android:src="@drawable/ic_nav_night_mode"
+            android:src="@drawable/ic_nav_refresh"
             android:background="@drawable/button_select"
             android:scaleType="fitCenter"/>
 

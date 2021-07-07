@@ -25,11 +25,6 @@ public class HistoryViewModel extends AndroidViewModel {
         historyRepository.deleteHistory(history);
     }
 
-
-    public LiveData<List<History>> findHistoryByTitle(String title) {
-        return historyRepository.findByTitle(title);
-    }
-
     public LiveData<List<History>> getHistoryList() {
         return historyRepository.getHistoryList();
     }

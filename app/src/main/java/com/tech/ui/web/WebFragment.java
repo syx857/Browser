@@ -542,11 +542,21 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
         }
     }
 
+    public boolean isInBlacklist(String host) {
+        Set<String> set = null;
+        try {
+            set = PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringSet("blacklist", null);
+        } catch (Exception ignored) {
+        }
+        return set != null && set.contains(host);
+    }
+
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         String scheme = request.getUrl().getScheme();
-        return !scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https");
-
+        boolean isNotHttp = !scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https");
+        boolean isBlock = isInBlacklist(request.getUrl().getHost());
+        return isNotHttp || isBlock;
     }
 
     @Override

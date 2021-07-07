@@ -26,6 +26,12 @@
         tools:layout="@layout/fragment_download" />
 
     <fragment
+        android:id="@+id/blacklistFragment"
+        android:name="com.tech.ui.blacklist.BlacklistFragment"
+        android:label="BlacklistFragment"
+        tools:layout="@layout/fragment_blacklist" />
+
+    <fragment
         android:id="@+id/historyFragment"
         android:name="com.tech.ui.history.HistoryFragment"
         android:label="HistoryFragment"

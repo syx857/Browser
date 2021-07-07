@@ -3,15 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
+        android:defaultValue="true"
         android:dialogIcon="@drawable/ic_baseline_search_24"
         android:dialogTitle="选择默认的搜索引擎"
-        android:icon="@drawable/ic_baseline_search_24"
-        android:summary="选择默认的搜索引擎"
-        android:defaultValue="https://www.baidu.com/s?ie=UTF-8&amp;wd="
         android:entries="@array/search_engine_name"
         android:entryValues="@array/search_engine_prefix"
+        android:icon="@drawable/ic_baseline_search_24"
         android:key="search engine"
         android:persistent="true"
-        android:title="搜索引擎" />
+        android:summary="选择默认的搜索引擎"
+        android:title="搜索引擎"
+        app:defaultValue="https://www.baidu.com/s?ie=UTF-8&amp;wd=" />
+
+    <PreferenceScreen
+        android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+        android:key="blacklist"
+        android:summary="设置网页黑名单"
+        android:title="黑名单" />
 
 </PreferenceScreen>
