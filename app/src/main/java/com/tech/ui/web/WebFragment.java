@@ -6,7 +6,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
@@ -41,6 +44,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
@@ -381,15 +385,39 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
     @Override
     public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback) {
         if (overlay != null) {
-            callback.onCustomViewHidden();
+            this.callback.onCustomViewHidden();
             return;
         }
         this.callback = callback;
         overlay = view;
         ((FrameLayout) requireActivity().getWindow().getDecorView()).addView(view,
-                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-        hideStatusBar(overlay);
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        hideSystemUI();
+    }
+
+    private void fullScreen() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+    }
+
+    @Override
+    public void doUpdateVisitedHistory(String url) {
+        if (url.equals("data:text/html; charset=UTF-8,")) {
+            setUrl("");
+            setTitle("about:blank");
+            setFavicon(null);
+        }
+        if (url.equals(HOME)) {
+            setUrl("");
+            setTitle("首页");
+            setFavicon(null);
+        } else {
+            setTitle(url);
+            setUrl(url);
+        }
     }
 
     /**
@@ -401,10 +429,27 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
             return;
         }
         ((FrameLayout) requireActivity().getWindow().getDecorView()).removeView(overlay);
-        showStatusBar();
         overlay = null;
+        showSystemUI();
         callback.onCustomViewHidden();
         callback = null;
+    }
+
+    public void hideSystemUI() {
+        Window window = requireActivity().getWindow();
+        View decorView = window.getDecorView();
+        WindowCompat.setDecorFitsSystemWindows(window, true);
+        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(window, decorView);
+        insetsControllerCompat.hide(WindowInsetsCompat.Type.navigationBars() | WindowInsetsCompat.Type.statusBars());
+        insetsControllerCompat.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    }
+
+    public void showSystemUI() {
+        Window window = requireActivity().getWindow();
+        View decorView = window.getDecorView();
+        WindowCompat.setDecorFitsSystemWindows(window, true);
+        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(window, decorView);
+        insetsControllerCompat.show(WindowInsetsCompat.Type.navigationBars() | WindowInsetsCompat.Type.statusBars());
     }
 
     private void hideStatusBar(View view) {
@@ -450,7 +495,7 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     public void onActivityResult(Map<String, Boolean> result) {
         Set<Entry<String, Boolean>> set = result.entrySet();
-        for (Map.Entry<String, Boolean> entry : set) {
+        for (Entry<String, Boolean> entry : set) {
             if (!entry.getValue()) {
                 Toast.makeText(requireContext(), "你拒绝提供下载权限，无法下载", Toast.LENGTH_SHORT).show();
                 return;
@@ -620,6 +665,8 @@ public class WebFragment extends Fragment implements MyWebViewClient.Callback,
 
     public void loadUrl(String url) {
         Log.d(TAG, "loadUrl: " + url);
+        setTitle("");
+        setFavicon(null);
         binding.webView.loadUrl(url);
     }
 

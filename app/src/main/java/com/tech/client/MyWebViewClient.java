@@ -33,6 +33,15 @@ public class MyWebViewClient extends WebViewClient {
     }
 
     @Override
+    public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+        super.doUpdateVisitedHistory(view, url, isReload);
+        Log.d(TAG, "doUpdateVisitedHistory: url " + url);
+        if(callback != null) {
+            callback.doUpdateVisitedHistory(url);
+        }
+    }
+
+    @Override
     public void onPageFinished(WebView view, String url) {
         Log.d(TAG, "onPageFinished: ");
         if (callback != null) {
@@ -88,6 +97,8 @@ public class MyWebViewClient extends WebViewClient {
         boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request);
 
         void addToHistory(String title, String url, long time);
+
+        void doUpdateVisitedHistory(String url);
     }
 
     public void addToHistory(WebView view) {
